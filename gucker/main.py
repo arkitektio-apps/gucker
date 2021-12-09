@@ -1,6 +1,5 @@
 from genericpath import isfile
-from posix import listdir
-from posixpath import join
+from os import listdir
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSettings
 from arkitekt.messages.postman.provide.bounced_provide import BouncedProvideMessage
@@ -87,14 +86,14 @@ def stream_folder(
     first_break = False
 
     while not first_break:
-        onlyfiles = [f for f in listdir(datadir) if isfile(join(datadir, f))]
+        onlyfiles = [f for f in listdir(datadir) if isfile(os.path.join(datadir, f))]
         if not onlyfiles:
             print("No Files.. Sleeping One Second")
             # first_break = True
             time.sleep(sleep_interval)
         else:
             for file_name in onlyfiles:
-                file_path = join(datadir, file_name)
+                file_path = os.path.join(datadir, file_name)
 
                 m = proper_file.match(file_name)
                 if m:

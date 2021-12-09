@@ -8,8 +8,8 @@ packages = [{include = "gucker"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-arkitekt = "^0.1.104"
-mikro = "^0.1.56"
+arkitekt = "^0.1.112"
+mikro = "^0.1.67"
 PyQt5 = "^5.15.6"
 tifffile = "^2021.11.2"
 
