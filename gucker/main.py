@@ -1,6 +1,6 @@
 from genericpath import isfile
-from posix import listdir
-from posixpath import join
+from os import listdir
+from os.path import join
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSettings
 from arkitekt.messages.postman.provide.bounced_provide import BouncedProvideMessage
@@ -23,7 +23,7 @@ from mikro.schema import Experiment, RepresentationVariety, Sample
 import re
 import tifffile
 import xarray as xr
-
+import namegenerator
 
 BASE_DIR = ""
 
@@ -48,7 +48,7 @@ def stream_folder(
     subfolder: str = None,
     sleep_interval: int = 1,
     regexp: str = "(?P<magnification>[^x]*)x(?P<sample>[^_]*)__w(?P<channel_index>[0-9]*)(?P<channel_name>[^-]*)-(?P<wavelength>[^_]*)_s(?P<position_index>[0-9]*)_t(?P<time_index>[0-9]*).TIF",
-    experiment_name: str = "Experiment",
+    experiment_name: str = None,
     force_match=False,
 ) -> Representation:
     """Stream Tiffs in Folder
@@ -59,7 +59,7 @@ def stream_folder(
         folder (str, optional): The subfolder name. Defaults to None.
         sleep_interval (int, optional): The sleep interval if we didnt find a new image. Defaults to 1.
         regexp (str, optional): A regular expression defining extraction of metadata. Defaults to None.
-        experiment_name (str, optional): The newly created Experiment we will create. Defaults to "Experiment".
+        experiment_name (str, optional): The newly created Experiment we will create. Defaults to random name.
         force_match (bool, optional): Do you force a match for the regexp?
 
     Returns:
@@ -70,7 +70,7 @@ def stream_folder(
     """
     creator = useUser()
     exp = Experiment.objects.create(
-        name=experiment_name,
+        name=experiment_name or namegenerator.gen(),
         creator=creator,
         description="A beautiful Little Experiment",
     )
