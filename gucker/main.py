@@ -18,7 +18,13 @@ import os
 import time
 
 from herre.qt import QtHerre
-from mikro.schema import Experiment, RepresentationVariety, Sample
+from mikro.schema import (
+    Channel,
+    Experiment,
+    OmeroRepresentation,
+    RepresentationVariety,
+    Sample,
+)
 import re
 import tifffile
 import xarray as xr
@@ -46,7 +52,7 @@ async def on_stream_provide(provision: BouncedProvideMessage):
 def stream_folder(
     subfolder: str = None,
     sleep_interval: int = 1,
-    regexp: str = "(?P<magnification>[^x]*)x(?P<sample>[^_]*)__w(?P<channel_index>[0-9]*)(?P<channel_name>[^-]*)-(?P<wavelength>[^_]*)_s(?P<position_index>[0-9]*)_t(?P<time_index>[0-9]*).TIF",
+    regexp: str = "(?P<magnification>[^x]*)x(?P<sample>[^_]*)__w(?P<channel_index>[0-9]*)(?P<channel_name>[^-]*)-(?P<wavelength>[^_]*)_s(?P<sample_index>[0-9]*)_t(?P<time_index>[0-9]*).TIF",
     experiment_name: str = None,
     force_match=False,
 ) -> Representation:
@@ -101,31 +107,38 @@ def stream_folder(
                     meta = m.groupdict()
 
                     t = int(meta["time_index"])
-                    p = int(meta["position_index"])
+                    s = int(meta["sample_index"])
+                    c = int(meta["channel_index"])
+                    channel_name = str(meta["channel_name"])
 
-                    if p not in sample_map:
-                        sample_map[p] = Sample.objects.create(
+                    if s not in sample_map:
+                        sample_map[s] = Sample.objects.create(
                             experiments=[exp.id],
-                            name=f"{meta['sample']} {p}",
-                            meta={"p": p},
+                            name=f"{meta['sample']} {s}",
+                            meta={"s": s},
                             creator=creator,
                         )
 
-                    sample = sample_map[p]
+                    sample = sample_map[s]
                     print(sample)
 
                     image = tifffile.imread(file_path)
-                    image = image.reshape((1, 1) + image.shape)
+                    image = image.reshape(
+                        (1, 1) + image.shape
+                    )  # we will deal with z-stack, lets expand them
                     array = xr.DataArray(image, dims=list("ctzyx"))
 
                     yield Representation.objects.from_xarray(
                         array,
                         name=f"{sample.name} - T {t}",
-                        tags=["fake"],
+                        tags=["initial"],
                         variety=RepresentationVariety.VOXEL,
                         creator=creator,
-                        meta={"time_index": t},
+                        meta={"t": t, "c": c},
                         sample=sample,
+                        omero=OmeroRepresentation(
+                            scale=[1, 1, 4, 1, 1], channels=[Channel(name=channel_name)]
+                        ),
                     )
                     # Simulate Acquisition
                     os.remove(file_path)
