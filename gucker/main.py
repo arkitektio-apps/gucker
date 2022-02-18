@@ -13,17 +13,21 @@ from gucker.env import get_asset_file
 import sys
 from fakts.grants.qt.qtbeacon import QtSelectableBeaconGrant
 from arkitekt import register, useUser
-from mikro import Representation
 import os
 import time
 
 from herre.qt import QtHerre
-from mikro.schema import (
-    Channel,
-    Experiment,
-    OmeroRepresentation,
+from mikro.structures import (
+    ChannelInput,
+    ExperimentFragment,
+    OmeroRepresentationInput,
+    RepresentationFragment,
     RepresentationVariety,
+    Representation,
     Sample,
+    create_experiment,
+    create_sample,
+    from_xarray,
 )
 import re
 import tifffile
@@ -53,9 +57,9 @@ def stream_folder(
     subfolder: str = None,
     sleep_interval: int = 1,
     regexp: str = "(?P<magnification>[^x]*)x(?P<sample>[^_]*)__w(?P<channel_index>[0-9]*)(?P<channel_name>[^-]*)-(?P<wavelength>[^_]*)_s(?P<sample_index>[0-9]*)_t(?P<time_index>[0-9]*).TIF",
-    experiment_name: str = None,
+    experiment: ExperimentFragment = None,
     force_match=False,
-) -> Representation:
+) -> RepresentationFragment:
     """Stream Tiffs in Folder
 
     Streams Tiffs in the subfolder in the user directory that was specified.
@@ -74,8 +78,8 @@ def stream_folder(
         Iterator[Representation]: [description]
     """
     creator = useUser()
-    exp = Experiment.objects.create(
-        name=experiment_name or namegenerator.gen(),
+    exp = experiment or create_experiment(
+        name=namegenerator.gen(),
         creator=creator,
         description="A beautiful Little Experiment",
     )
@@ -103,7 +107,6 @@ def stream_folder(
 
                 m = proper_file.match(file_name)
                 if m:
-                    print("Found new Match")
                     meta = m.groupdict()
 
                     t = int(meta["time_index"])
@@ -112,7 +115,7 @@ def stream_folder(
                     channel_name = str(meta["channel_name"])
 
                     if s not in sample_map:
-                        sample_map[s] = Sample.objects.create(
+                        sample_map[s] = create_sample(
                             experiments=[exp.id],
                             name=f"{meta['sample']} {s}",
                             meta={"s": s},
@@ -120,7 +123,6 @@ def stream_folder(
                         )
 
                     sample = sample_map[s]
-                    print(sample)
 
                     image = tifffile.imread(file_path)
                     image = image.reshape(
@@ -128,7 +130,7 @@ def stream_folder(
                     )  # we will deal with z-stack, lets expand them
                     array = xr.DataArray(image, dims=list("ctzyx"))
 
-                    yield Representation.objects.from_xarray(
+                    yield from_xarray(
                         array,
                         name=f"{sample.name} - T {t}",
                         tags=["initial"],
@@ -136,10 +138,12 @@ def stream_folder(
                         creator=creator,
                         meta={"t": t, "c": c},
                         sample=sample,
-                        omero=OmeroRepresentation(
-                            scale=[1, 1, 4, 1, 1], channels=[Channel(name=channel_name)]
+                        omero=OmeroRepresentationInput(
+                            scale=[1, 1, 4, 1, 1],
+                            channels=[ChannelInput(name=channel_name)],
                         ),
                     )
+
                     # Simulate Acquisition
                     os.remove(file_path)
 
