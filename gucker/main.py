@@ -1,46 +1,40 @@
-from genericpath import isfile
-from os import listdir
-from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import QSettings
-from arkitekt.messages.postman.provide.bounced_provide import BouncedProvideMessage
-from arkitekt.qt.agent import QtAgent
-from arkitekt.qt.widgets.magic_bar import MagicBar
-from arkitekt.qt.widgets.provisions import ProvisionsWidget
-from arkitekt.registry import get_current_agent
-import fakts
-from fakts.qt import QtFakts
-from gucker.env import get_asset_file
-import sys
-from fakts.grants.qt.qtbeacon import QtSelectableBeaconGrant
-from arkitekt import register, useUser
 import os
-import time
+import re
+import sys
+from time import time
+from typing import List
+from arkitekt.definition.registry import register
+from arkitekt.messages import Provision
 
-from herre.qt import QtHerre
-from mikro.structures import (
+from arkitekt.structures.registry import StructureRegistry
+from fakts.fakts import Fakts
+from gucker.env import get_asset_file
+from koil.qt import QtRunner
+from mikro.api.schema import (
     ChannelInput,
     ExperimentFragment,
     OmeroRepresentationInput,
     RepresentationFragment,
     RepresentationVariety,
-    Representation,
-    Sample,
+    aget_representation,
     create_experiment,
     create_sample,
     from_xarray,
 )
-import re
+from qtpy import QtWidgets, QtGui
+from fakts.grants.qt.qtbeacon import QtSelectableBeaconGrant, SelectBeaconWidget
+from qtpy import QtCore
+from mikro.arkitekt import ConnectedApp
+from koil.composition.qt import QtPedanticKoil
+from herre.fakts import FaktsHerre
+from arkitekt.qt.magic_bar import MagicBar
 import tifffile
-import xarray as xr
 import namegenerator
+import xarray as xr
 
-BASE_DIR = ""
 
+async def on_stream_provide(provision: Provision):
 
-async def on_stream_provide(provision: BouncedProvideMessage):
-
-    agent = get_current_agent()
-    base_dir = agent.settings.value("base_dir")
     if base_dir == "":
         raise Exception("No Basedir was selected!")
 
@@ -50,6 +44,14 @@ async def on_stream_provide(provision: BouncedProvideMessage):
         os.makedirs(userdir)
 
     return base_dir
+
+
+stregistry = StructureRegistry()
+
+
+stregistry.register_as_structure(
+    RepresentationFragment, "representation", aget_representation
+)
 
 
 @register(on_provide=on_stream_provide)
@@ -96,7 +98,9 @@ def stream_folder(
     first_break = False
 
     while not first_break:
-        onlyfiles = [f for f in listdir(datadir) if isfile(os.path.join(datadir, f))]
+        onlyfiles = [
+            f for f in os.listdir(datadir) if os.isfile(os.path.join(datadir, f))
+        ]
         if not onlyfiles:
             print("No Files.. Sleeping One Second")
             # first_break = True
@@ -154,19 +158,23 @@ class Gucker(QtWidgets.QWidget):
         # self.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
         self.setWindowIcon(QtGui.QIcon(get_asset_file("logo.ico")))
 
-        self.settings = QSettings("Gucker", "App1")
+        self.settings = QtGui.QSettings("Gucker", "App1")
         self.base_dir = self.settings.value("base_dir", "")
 
-        self.fakts = QtFakts(grants=[QtSelectableBeaconGrant()], subapp="gucker")
-        self.herre = QtHerre()
-        self.agent = QtAgent()
-        self.agent.settings = self.settings
-        self.agent.provide_signal.connect(self.on_provide_changed)
-        self.agent.provision_signal.connect(self.update_provisions)
+        self.app = ConnectedApp(
+            koil=QtPedanticKoil(uvify=False, auto_connect=True, parent=self),
+            fakts=Fakts(
+                subapp="gucker",
+                grants=[
+                    QtSelectableBeaconGrant(widget=SelectBeaconWidget(parent=self))
+                ],
+                assert_groups={"mikro"},
+            ),
+            herre=FaktsHerre(login_on_enter=False),
+        )
+        self.app.koil.connect()
 
-        self.provision_widget = ProvisionsWidget(self.agent)
-
-        self.bar = MagicBar(self.fakts, self.herre, self.agent)
+        self.magic_bar = MagicBar(self.app, dark_mode=True)
         self.button = QtWidgets.QPushButton("Select Base Directory to watch")
         self.button.clicked.connect(self.on_base_dir)
 
@@ -177,8 +185,7 @@ class Gucker(QtWidgets.QWidget):
 
         self.layout = QtWidgets.QVBoxLayout()
         self.layout.addWidget(self.qlabel)
-        self.layout.addWidget(self.bar)
-        self.layout.addWidget(self.provision_widget)
+        self.layout.addWidget(self.magic_bar)
         self.layout.addWidget(self.button)
         self.setLayout(self.layout)
 
