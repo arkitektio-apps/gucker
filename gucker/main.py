@@ -33,19 +33,6 @@ import namegenerator
 import xarray as xr
 
 
-async def on_stream_provide(provision: Provision):
-
-    if base_dir == "":
-        raise Exception("No Basedir was selected!")
-
-    userdir = os.path.join(base_dir, provision.meta.context.user)
-    if not os.path.exists(userdir):
-        print(f"Creating {userdir}")
-        os.makedirs(userdir)
-
-    return base_dir
-
-
 stregistry = StructureRegistry()
 
 
@@ -54,111 +41,13 @@ stregistry.register_as_structure(
 )
 
 
-@register(on_provide=on_stream_provide)
-def stream_folder(
-    subfolder: str = None,
-    sleep_interval: int = 1,
-    regexp: str = "(?P<magnification>[^x]*)x(?P<sample>[^_]*)__w(?P<channel_index>[0-9]*)(?P<channel_name>[^-]*)-(?P<wavelength>[^_]*)_s(?P<sample_index>[0-9]*)_t(?P<time_index>[0-9]*).TIF",
-    experiment: ExperimentFragment = None,
-    force_match=False,
-) -> RepresentationFragment:
-    """Stream Tiffs in Folder
-
-    Streams Tiffs in the subfolder in the user directory that was specified.
-
-    Args:
-        folder (str, optional): The subfolder name. Defaults to None.
-        sleep_interval (int, optional): The sleep interval if we didnt find a new image. Defaults to 1.
-        regexp (str, optional): A regular expression defining extraction of metadata. Defaults to None.
-        experiment_name (str, optional): The newly created Experiment we will create. Defaults to random name.
-        force_match (bool, optional): Do you force a match for the regexp?
-
-    Returns:
-        Representation: [description]
-
-    Yields:
-        Iterator[Representation]: [description]
-    """
-    creator = useUser()
-    exp = experiment or create_experiment(
-        name=namegenerator.gen(),
-        creator=creator,
-        description="A beautiful Little Experiment",
-    )
-
-    proper_file = re.compile(regexp)
-
-    agent = get_current_agent()
-    base_dir = agent.settings.value("base_dir")
-
-    basedir = os.path.join(base_dir, creator)
-    datadir = os.path.join(basedir, subfolder) if subfolder else basedir
-
-    sample_map = {}
-    first_break = False
-
-    while not first_break:
-        onlyfiles = [
-            f for f in os.listdir(datadir) if os.isfile(os.path.join(datadir, f))
-        ]
-        if not onlyfiles:
-            print("No Files.. Sleeping One Second")
-            # first_break = True
-            time.sleep(sleep_interval)
-        else:
-            for file_name in onlyfiles:
-                file_path = os.path.join(datadir, file_name)
-
-                m = proper_file.match(file_name)
-                if m:
-                    meta = m.groupdict()
-
-                    t = int(meta["time_index"])
-                    s = int(meta["sample_index"])
-                    c = int(meta["channel_index"])
-                    channel_name = str(meta["channel_name"])
-
-                    if s not in sample_map:
-                        sample_map[s] = create_sample(
-                            experiments=[exp.id],
-                            name=f"{meta['sample']} {s}",
-                            meta={"s": s},
-                            creator=creator,
-                        )
-
-                    sample = sample_map[s]
-
-                    image = tifffile.imread(file_path)
-                    image = image.reshape(
-                        (1, 1) + image.shape
-                    )  # we will deal with z-stack, lets expand them
-                    array = xr.DataArray(image, dims=list("ctzyx"))
-
-                    yield from_xarray(
-                        array,
-                        name=f"{sample.name} - T {t}",
-                        tags=["initial"],
-                        variety=RepresentationVariety.VOXEL,
-                        creator=creator,
-                        meta={"t": t, "c": c},
-                        sample=sample,
-                        omero=OmeroRepresentationInput(
-                            scale=[1, 1, 4, 1, 1],
-                            channels=[ChannelInput(name=channel_name)],
-                        ),
-                    )
-
-                    # Simulate Acquisition
-                    os.remove(file_path)
-
-
 class Gucker(QtWidgets.QWidget):
     def __init__(self, **kwargs):
         super().__init__()
         # self.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
         self.setWindowIcon(QtGui.QIcon(get_asset_file("logo.ico")))
 
-        self.settings = QtGui.QSettings("Gucker", "App1")
+        self.settings = QtCore.QSettings("Gucker", "App1")
         self.base_dir = self.settings.value("base_dir", "")
 
         self.app = ConnectedApp(
@@ -189,8 +78,10 @@ class Gucker(QtWidgets.QWidget):
         self.layout.addWidget(self.button)
         self.setLayout(self.layout)
 
+        self.app.arkitekt.register(on_provide=self.on_stream_provide)(
+            self.stream_folder
+        )
         self.setWindowTitle("Gucker")
-        self.show()
 
     def on_base_dir(self):
         self.base_dir = QtWidgets.QFileDialog.getExistingDirectory(
@@ -208,11 +99,116 @@ class Gucker(QtWidgets.QWidget):
     def update_provisions(self, select):
         self.qlabel.setText(f"Watching { self.base_dir}")
 
+    async def on_stream_provide(self, provision: Provision):
+        if self.base_dir == "":
+            raise Exception("No Basedir was selected!")
+
+        userdir = os.path.join(self.base_dir, "user")
+        if not os.path.exists(userdir):
+            print(f"Creating {userdir}")
+            os.makedirs(userdir)
+
+    def stream_folder(
+        self,
+        subfolder: str = None,
+        sleep_interval: int = 1,
+        regexp: str = "(?P<magnification>[^x]*)x(?P<sample>[^_]*)__w(?P<channel_index>[0-9]*)(?P<channel_name>[^-]*)-(?P<wavelength>[^_]*)_s(?P<sample_index>[0-9]*)_t(?P<time_index>[0-9]*).TIF",
+        experiment: ExperimentFragment = None,
+        force_match=False,
+    ) -> RepresentationFragment:
+        """Stream Tiffs in Folder
+
+        Streams Tiffs in the subfolder in the user directory that was specified.
+
+        Args:
+            folder (str, optional): The subfolder name. Defaults to None.
+            sleep_interval (int, optional): The sleep interval if we didnt find a new image. Defaults to 1.
+            regexp (str, optional): A regular expression defining extraction of metadata. Defaults to None.
+            experiment_name (str, optional): The newly created Experiment we will create. Defaults to random name.
+            force_match (bool, optional): Do you force a match for the regexp?
+
+        Returns:
+            Representation: [description]
+
+        Yields:
+            Iterator[Representation]: [description]
+        """
+        creator = None
+        exp = experiment or create_experiment(
+            name=namegenerator.gen(),
+            creator=creator,
+            description="A beautiful Little Experiment",
+        )
+
+        proper_file = re.compile(regexp)
+        base_dir = self.settings.value("base_dir")
+
+        basedir = os.path.join(base_dir, creator)
+        datadir = os.path.join(basedir, subfolder) if subfolder else basedir
+
+        sample_map = {}
+        first_break = False
+
+        while not first_break:
+            onlyfiles = [
+                f for f in os.listdir(datadir) if os.isfile(os.path.join(datadir, f))
+            ]
+            if not onlyfiles:
+                print("No Files.. Sleeping One Second")
+                # first_break = True
+                time.sleep(sleep_interval)
+            else:
+                for file_name in onlyfiles:
+                    file_path = os.path.join(datadir, file_name)
+
+                    m = proper_file.match(file_name)
+                    if m:
+                        meta = m.groupdict()
+
+                        t = int(meta["time_index"])
+                        s = int(meta["sample_index"])
+                        c = int(meta["channel_index"])
+                        channel_name = str(meta["channel_name"])
+
+                        if s not in sample_map:
+                            sample_map[s] = create_sample(
+                                experiments=[exp.id],
+                                name=f"{meta['sample']} {s}",
+                                meta={"s": s},
+                                creator=creator,
+                            )
+
+                        sample = sample_map[s]
+
+                        image = tifffile.imread(file_path)
+                        image = image.reshape(
+                            (1, 1) + image.shape
+                        )  # we will deal with z-stack, lets expand them
+                        array = xr.DataArray(image, dims=list("ctzyx"))
+
+                        yield from_xarray(
+                            array,
+                            name=f"{sample.name} - T {t}",
+                            tags=["initial"],
+                            variety=RepresentationVariety.VOXEL,
+                            creator=creator,
+                            meta={"t": t, "c": c},
+                            sample=sample,
+                            omero=OmeroRepresentationInput(
+                                scale=[1, 1, 4, 1, 1],
+                                channels=[ChannelInput(name=channel_name)],
+                            ),
+                        )
+
+                        # Simulate Acquisition
+                        os.remove(file_path)
+
 
 def main(**kwargs):
     app = QtWidgets.QApplication(sys.argv)
     # app.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
     main_window = Gucker(**kwargs)
+    main_window.show()
     sys.exit(app.exec_())
 
 
