@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[749],{5051:function(e){e.exports=JSON.parse('{"allTagsPath":"/gucker/blog/tags","name":"rath","count":1,"permalink":"/gucker/blog/tags/rath"}')}}]);
