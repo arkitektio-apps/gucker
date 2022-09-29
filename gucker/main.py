@@ -1,18 +1,25 @@
 import os
 import re
 import sys
-from time import time
-from typing import List
-from arkitekt.definition.registry import register
-from arkitekt.messages import Provision
+import time
+from typing import Optional
+from koil.vars import check_cancelled
+from rekuest.messages import Provision
 
-from arkitekt.structures.registry import StructureRegistry
+from rekuest.structures.registry import StructureRegistry
+from fakts.discovery.qt.selectable_beacon import (
+    QtSelectableDiscovery,
+    SelectBeaconWidget,
+)
 from fakts.fakts import Fakts
+from fakts.grants.remote.qt.base import RemoteQtGrant
+from fakts.grants.remote.redirect_grant import RedirectGrant
 from gucker.env import get_asset_file
 from koil.qt import QtRunner
 from mikro.api.schema import (
     ChannelInput,
     ExperimentFragment,
+    OmeroFileFragment,
     OmeroRepresentationInput,
     RepresentationFragment,
     RepresentationVariety,
@@ -20,11 +27,11 @@ from mikro.api.schema import (
     create_experiment,
     create_sample,
     from_xarray,
+    upload_bioimage,
 )
 from qtpy import QtWidgets, QtGui
-from fakts.grants.qt.qtbeacon import QtSelectableBeaconGrant, SelectBeaconWidget
 from qtpy import QtCore
-from mikro.arkitekt import ConnectedApp
+from arkitekt.apps.connected import ConnectedApp
 from koil.composition.qt import QtPedanticKoil
 from herre.fakts import FaktsHerre
 from arkitekt.qt.magic_bar import MagicBar
@@ -51,17 +58,14 @@ class Gucker(QtWidgets.QWidget):
         self.base_dir = self.settings.value("base_dir", "")
 
         self.app = ConnectedApp(
-            koil=QtPedanticKoil(uvify=False, auto_connect=True, parent=self),
+            koil=QtPedanticKoil(uvify=False, parent=self),
             fakts=Fakts(
                 subapp="gucker",
-                grants=[
-                    QtSelectableBeaconGrant(widget=SelectBeaconWidget(parent=self))
-                ],
+                grant=RedirectGrant(name="gucker"),
                 assert_groups={"mikro"},
             ),
-            herre=FaktsHerre(login_on_enter=False),
         )
-        self.app.koil.connect()
+        self.app.enter()
 
         self.magic_bar = MagicBar(self.app, dark_mode=True)
         self.button = QtWidgets.QPushButton("Select Base Directory to watch")
@@ -78,9 +82,11 @@ class Gucker(QtWidgets.QWidget):
         self.layout.addWidget(self.button)
         self.setLayout(self.layout)
 
-        self.app.arkitekt.register(on_provide=self.on_stream_provide)(
-            self.stream_folder
+        # self.app.rekuest.register(on_provide=self.on_stream_provide)(self.stream_folder)
+        self.app.rekuest.register(on_provide=self.on_stream_provide)(
+            self.stream_bioimages
         )
+        self.app.rekuest.register()(self.upload_bioimage)
         self.setWindowTitle("Gucker")
 
     def on_base_dir(self):
@@ -105,8 +111,69 @@ class Gucker(QtWidgets.QWidget):
 
         userdir = os.path.join(self.base_dir, "user")
         if not os.path.exists(userdir):
-            print(f"Creating {userdir}")
             os.makedirs(userdir)
+
+    def upload_bioimage(self, filename: str) -> OmeroFileFragment:
+        """Upload Bioimage
+
+        Uploads the current bioimage to Mikro.
+
+        Args:
+            filename (str): The upload bioimage
+
+        Returns:
+            OmeroFileFragment: The uploaded bioimage
+        """
+        return upload_bioimage(file=open(filename, "rb"))
+
+    def stream_bioimages(
+        self,
+        subfolder: Optional[str],
+        regexp: str = ".*.TIF",
+        indefinitely: bool = False,
+    ) -> OmeroFileFragment:
+        """Stream Bioimages
+
+        Uploads all bioimages in a folder to Mikro.
+
+        Args:
+            filename (str): The upload bioimage
+
+        Returns:
+            OmeroFileFragment: The uploaded bioimage
+        """
+        proper_file = re.compile(regexp)
+        base_dir = self.settings.value("base_dir")
+
+        basedir = os.path.join(base_dir)
+        datadir = os.path.join(basedir, subfolder) if subfolder else basedir
+
+        sample_map = {}
+        first_break = False
+
+        while not first_break:
+            onlyfiles = [
+                f
+                for f in os.listdir(datadir)
+                if os.path.isfile(os.path.join(datadir, f))
+            ]
+            if not onlyfiles:
+                if indefinitely:
+                    time.sleep(1)
+                    check_cancelled()
+                else:
+                    first_break = True
+            else:
+                for file_name in onlyfiles:
+                    file_path = os.path.join(datadir, file_name)
+
+                    m = proper_file.match(file_name)
+                    if m:
+                        yield upload_bioimage(
+                            file=open(file_path, "rb"), name=file_name
+                        )
+
+                    os.remove(file_path)
 
     def stream_folder(
         self,
@@ -143,7 +210,7 @@ class Gucker(QtWidgets.QWidget):
         proper_file = re.compile(regexp)
         base_dir = self.settings.value("base_dir")
 
-        basedir = os.path.join(base_dir, creator)
+        basedir = os.path.join(base_dir)
         datadir = os.path.join(basedir, subfolder) if subfolder else basedir
 
         sample_map = {}
@@ -151,11 +218,13 @@ class Gucker(QtWidgets.QWidget):
 
         while not first_break:
             onlyfiles = [
-                f for f in os.listdir(datadir) if os.isfile(os.path.join(datadir, f))
+                f
+                for f in os.listdir(datadir)
+                if os.path.isfile(os.path.join(datadir, f))
             ]
             if not onlyfiles:
                 print("No Files.. Sleeping One Second")
-                # first_break = True
+                first_break = True
                 time.sleep(sleep_interval)
             else:
                 for file_name in onlyfiles:
@@ -191,8 +260,6 @@ class Gucker(QtWidgets.QWidget):
                             name=f"{sample.name} - T {t}",
                             tags=["initial"],
                             variety=RepresentationVariety.VOXEL,
-                            creator=creator,
-                            meta={"t": t, "c": c},
                             sample=sample,
                             omero=OmeroRepresentationInput(
                                 scale=[1, 1, 4, 1, 1],
