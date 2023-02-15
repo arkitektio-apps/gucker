@@ -54,7 +54,7 @@ class Gucker(QtWidgets.QWidget):
         # self.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
         self.setWindowIcon(QtGui.QIcon(get_asset_file("logo.ico")))
 
-        self.settings = QtCore.QSettings("Gucker", "App1")
+        self.settings = QtCore.QSettings("Gucker", "gg")
         self.base_dir = self.settings.value("base_dir", "")
 
         self.app = ConnectedApp(
