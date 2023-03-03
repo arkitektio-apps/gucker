@@ -4,15 +4,15 @@ version = "0.1.0"
 description = "a simple watcher for file events, streaming to arkitekt"
 authors = ["jhnnsrs <jhnnsrs@gmail.com>"]
 license = "CC BY-NC 3.0"
-packages = [{include = "gucker"}]
+packages = [{ include = "gucker" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-arkitekt = "^0.1.112"
-mikro = "0.1.74"
+python = "^3.8, <3.11"
+arkitekt = "0.4.45"
 PyQt5 = "^5.15.6"
 tifffile = "^2021.11.2"
 namegenerator = "^1.0.6"
+pyinstaller = "^5.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -28,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 
 [[tool.pydoc-markdown.loaders]]
 type = "python"
-search_path = [ "gucker" ]
+search_path = ["gucker"]
 
 [tool.pydoc-markdown.renderer]
 type = "docusaurus"
@@ -36,9 +36,8 @@ docs_base_path = "website/docs"
 
 
 [tool.pytest.ini_options]
-qt_api="pyqt5"
+qt_api = "pyqt5"
 markers = [
-    "integration: marks tests that require a running server",
+    "integration: marks tests that require a running arkitekt server",
     "qt: marks tests that require a running qt application",
 ]
-

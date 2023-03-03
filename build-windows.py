@@ -1,4 +1,6 @@
 import PyInstaller.__main__
+import shutil 
+
 
 APP_NAME = "Gucker"
 
@@ -10,3 +12,6 @@ PyInstaller.__main__.run([
     '--noconfirm',
     '--additional-hooks-dir=hooks',
 ])
+
+shutil.make_archive("./dist/GuckerApp", "zip", "./dist/Gucker")
+print("Made archive")
