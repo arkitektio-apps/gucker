@@ -7,7 +7,7 @@ license = "CC BY-NC 3.0"
 packages = [{ include = "gucker" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<=3.12"
 arkitekt = "^0.4.49"
 
 [tool.mypy]
