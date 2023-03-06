@@ -4,23 +4,60 @@ version = "0.1.0"
 description = "a simple watcher for file events, streaming to arkitekt"
 authors = ["jhnnsrs <jhnnsrs@gmail.com>"]
 license = "CC BY-NC 3.0"
-packages = [{include = "gucker"}]
+packages = [{ include = "gucker" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-arkitekt = "^0.1.112"
-mikro = "0.1.74"
-PyQt5 = "^5.15.6"
-tifffile = "^2021.11.2"
-namegenerator = "^1.0.6"
+python = ">=3.8,<=3.12"
+arkitekt = "^0.4.49"
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-pytest-aiohttp = "^0.3.0"
-pytest-cov = "^3.0.0"
-black = "^21.12b0"
-pytest-qt = "^4.0.2"
-pydoc-markdown = "4.5.0"
+[tool.mypy]
+exclude = ["venv/"]
+ignore_missing_imports = true
+
+
+[tool.ruff]
+extend-select = ["ANN", "D1"]
+ignore = ["ANN101", "D107", "D106", "ANN002", "ANN003"]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "tests",
+]
+
+# Same as Black.
+line-length = 100
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+pytest-asyncio = "^0.20.2"
+turms = { version = ">=0.3.1", python = "^3.9" }
+aiohttp = "^3.8.3"
+websockets = "^10.4"
+black = "^23.1.0"
+pytest-cov = "^4.0.0"
+pytest-aiohttp = "^1.0.4"
+ruff = "^0.0.254"
+mypy = "^1.0.1"
+pytest-qt = "^4.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -28,7 +65,7 @@ build-backend = "poetry.core.masonry.api"
 
 [[tool.pydoc-markdown.loaders]]
 type = "python"
-search_path = [ "gucker" ]
+search_path = ["gucker"]
 
 [tool.pydoc-markdown.renderer]
 type = "docusaurus"
@@ -36,9 +73,8 @@ docs_base_path = "website/docs"
 
 
 [tool.pytest.ini_options]
-qt_api="pyqt5"
+qt_api = "pyqt5"
 markers = [
-    "integration: marks tests that require a running server",
+    "integration: marks tests that require a running arkitekt server",
     "qt: marks tests that require a running qt application",
 ]
-
