@@ -91,3 +91,30 @@ jobs:
         run: poetry run pytest --cov --cov-report=xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+  test_build:
+    name: Test build packages
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            TARGET: windows
+            CMD_BUILD: python build-windows.py
+            OUT_FILE_NAME: GuckerApp.zip
+            ASSET_NAME: "GuckerApp.zip"
+            ASSET_MIME: application/x-zip-compressed
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Run image
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.4
+      - name: Run Poetry Install
+        run: poetry config virtualenvs.create false && poetry install
+      - name: Install Qt because Qt sucks with Poetry
+        run: poetry run pip install pyqt5
+      - name: Build with pyinstaller for ${{matrix.TARGET}}
+        run: ${{matrix.CMD_BUILD}}
