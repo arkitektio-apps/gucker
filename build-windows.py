@@ -7,7 +7,8 @@ APP_NAME = "Gucker"
 PyInstaller.__main__.run([
     'entrypoint.py',
     '--clean',
-    # '--windowed',
+    '--windowed',
+    "--onedir",
     f'--name={APP_NAME}',
     '--noconfirm',
     '--additional-hooks-dir=hooks',
