@@ -1,3 +1,3 @@
-from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files
 
 datas = collect_data_files('gucker')

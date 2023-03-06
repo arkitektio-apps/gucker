@@ -4,21 +4,13 @@ import sys
 import time
 from typing import Optional
 from koil.vars import check_cancelled
-from rekuest.messages import Provision
 
 from rekuest.structures.registry import StructureRegistry
 from gucker.env import get_asset_file
 from mikro.api.schema import (
-    ChannelInput,
-    ExperimentFragment,
     OmeroFileFragment,
-    OmeroRepresentationInput,
     RepresentationFragment,
-    RepresentationVariety,
     aget_representation,
-    create_experiment,
-    create_sample,
-    from_xarray,
     upload_bigfile,
     DatasetFragment
 )
@@ -27,9 +19,6 @@ from qtpy import QtCore
 from arkitekt.qt.magic_bar import MagicBar
 from arkitekt.builders import publicqt
 from arkitekt import log
-import tifffile
-import namegenerator
-import xarray as xr
 
 
 stregistry = StructureRegistry()
@@ -41,12 +30,17 @@ stregistry.register_as_structure(
 
 
 class Gucker(QtWidgets.QMainWindow):
+    """ The main window of the Gucker application
+    
+    This window is the main window of the Gucker application. It is responsible for
+    watching a directory and uploading new files to the server.
+    """
     is_watching = QtCore.Signal(bool)
     is_uploading = QtCore.Signal(str)
     has_uploaded = QtCore.Signal(str)
 
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__()
         # self.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
         self.setWindowIcon(QtGui.QIcon(get_asset_file("logo.ico")))
@@ -117,17 +111,17 @@ class Gucker(QtWidgets.QMainWindow):
             self.magic_bar.magicb.setText("Select Folder first")
 
 
-    def is_watching_changed(self, select):
+    def is_watching_changed(self, select) -> None:
         if select:
             self.center_label.setPixmap(self.watching_bitmap)
         else:
             self.center_label.setPixmap(self.idle_bitmap)
 
-    def is_uploading_changed(self, select):
+    def is_uploading_changed(self, select) -> None:
         if select:
             self.statusBar.showMessage(f"Uploading {select}")
 
-    def has_uploaded_changed(self, select):
+    def has_uploaded_changed(self, select) -> None:
         self.statusBar.showMessage(f"Last Upload: {select}")
 
     def update_provisions(self, select):
@@ -160,7 +154,6 @@ class Gucker(QtWidgets.QMainWindow):
         datadir = os.path.join(base_dir)
 
         log(f"Streaming items of {datadir}")
-        sample_map = {}
         first_break = False
         self.is_watching.emit(True)
 
@@ -194,7 +187,9 @@ class Gucker(QtWidgets.QMainWindow):
         self.is_watching.emit(False)
     
 
-def main(**kwargs):
+def main(**kwargs) -> None:
+    """Entrypoint for the application
+    """
     app = QtWidgets.QApplication(sys.argv)
     # app.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
     main_window = Gucker(**kwargs)
