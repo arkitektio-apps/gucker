@@ -12,6 +12,7 @@ from mikro.api.schema import (
     RepresentationFragment,
     aget_representation,
     upload_bigfile,
+    create_dataset,
     DatasetFragment
 )
 from qtpy import QtWidgets, QtGui
@@ -19,6 +20,10 @@ from qtpy import QtCore
 from arkitekt.qt.magic_bar import MagicBar, ProcessState
 from arkitekt.builders import publicqt
 from arkitekt import log
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 stregistry = StructureRegistry()
@@ -62,10 +67,9 @@ class Gucker(QtWidgets.QMainWindow):
         self.center_label.setPixmap(self.idle_bitmap)
         self.center_label.setScaledContents(True)
 
+
         self.app = publicqt("github.io.jhnnsrs.gucker", "latest", parent=self)
         self.app.enter()
-        
-
         self.magic_bar = MagicBar(self.app, dark_mode=True)
         self.magic_bar.app_state_changed.connect(lambda: self.button.setDisabled(self.magic_bar.process_state == ProcessState.PROVIDING))
         self.button = QtWidgets.QPushButton("Select Directory to watch")
@@ -149,6 +153,10 @@ class Gucker(QtWidgets.QMainWindow):
         Yields:
             Iterator[OmeroFileFragment]: The uploaded file
         """        """"""
+
+        if not dataset:
+            dataset = create_dataset("Streaming Dataset")
+
         proper_file = re.compile(regexp) if regexp else re.compile(".*")
         base_dir = self.settings.value("base_dir")
 
@@ -158,12 +166,17 @@ class Gucker(QtWidgets.QMainWindow):
         first_break = False
         self.is_watching.emit(True)
 
+        uploaded_files = set()
+
         while not first_break:
             onlyfiles = [
                 f
                 for f in os.listdir(datadir)
                 if os.path.isfile(os.path.join(datadir, f))
+                and proper_file.match(f)
+                and f not in uploaded_files
             ]
+
             if not onlyfiles:
                 if indefinitely:
                     time.sleep(1)
@@ -171,21 +184,25 @@ class Gucker(QtWidgets.QMainWindow):
                 else:
                     first_break = True
             else:
-                time.sleep(self.grace_period)
-
                 for file_name in onlyfiles:
                     file_path = os.path.join(datadir, file_name)
+                    try:
+                        os.rename(file_path, file_path)
+                    except OSError:
+                        logger.warning(f"Could not rename {file_name}. Probably still in use. Trying this again in 1 seconds.")
+                        log(f"Could not rename {file_name}. Probably still in use.")
+                        continue
 
-                    m = proper_file.match(file_name)
-                    if m:
-                        self.is_uploading.emit(file_path)
-                        yield upload_bigfile(
-                            file=file_path,
-                            datasets=[dataset] if dataset else None
-                        )
-                        self.has_uploaded.emit(file_path)
 
-                    os.remove(file_path)
+                    self.is_uploading.emit(file_path)
+                    yield upload_bigfile(
+                        file=file_path,
+                        datasets=[dataset] if dataset else None
+                    )
+                    self.has_uploaded.emit(file_path)
+                    uploaded_files.add(file_name)
+
+                time.sleep(1)
 
         self.is_watching.emit(False)
     
@@ -193,11 +210,10 @@ class Gucker(QtWidgets.QMainWindow):
 def main(**kwargs) -> None:
     """Entrypoint for the application
     """
-    app = QtWidgets.QApplication(sys.argv)
-    # app.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
+    qtapp = QtWidgets.QApplication(sys.argv)
     main_window = Gucker(**kwargs)
     main_window.show()
-    sys.exit(app.exec_())
+    sys.exit(qtapp.exec_())
 
 
 if __name__ == "__main__":
