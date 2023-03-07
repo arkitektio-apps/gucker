@@ -16,7 +16,7 @@ from mikro.api.schema import (
 )
 from qtpy import QtWidgets, QtGui
 from qtpy import QtCore
-from arkitekt.qt.magic_bar import MagicBar
+from arkitekt.qt.magic_bar import MagicBar, ProcessState
 from arkitekt.builders import publicqt
 from arkitekt import log
 
@@ -52,7 +52,7 @@ class Gucker(QtWidgets.QMainWindow):
         self.is_watching.connect(self.is_watching_changed)
         self.is_uploading.connect(self.is_uploading_changed)
         self.has_uploaded.connect(self.has_uploaded_changed)
-
+        self.grace_period = 2
         # Create a bitmap to use toggle for the watching state
         self.watching = False
         self.watching_bitmap = QtGui.QPixmap(get_asset_file("watching_black.png"))
@@ -67,6 +67,7 @@ class Gucker(QtWidgets.QMainWindow):
         
 
         self.magic_bar = MagicBar(self.app, dark_mode=True)
+        self.magic_bar.app_state_changed.connect(lambda: self.button.setDisabled(self.magic_bar.process_state == ProcessState.PROVIDING))
         self.button = QtWidgets.QPushButton("Select Directory to watch")
         self.button.clicked.connect(self.on_base_dir)
 
@@ -170,6 +171,8 @@ class Gucker(QtWidgets.QMainWindow):
                 else:
                     first_break = True
             else:
+                time.sleep(self.grace_period)
+
                 for file_name in onlyfiles:
                     file_path = os.path.join(datadir, file_name)
 
