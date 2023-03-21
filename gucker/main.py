@@ -13,7 +13,7 @@ from mikro.api.schema import (
     aget_representation,
     upload_bigfile,
     create_dataset,
-    DatasetFragment
+    DatasetFragment,
 )
 from qtpy import QtWidgets, QtGui
 from qtpy import QtCore
@@ -35,15 +35,15 @@ stregistry.register_as_structure(
 
 
 class Gucker(QtWidgets.QMainWindow):
-    """ The main window of the Gucker application
-    
+    """The main window of the Gucker application
+
     This window is the main window of the Gucker application. It is responsible for
     watching a directory and uploading new files to the server.
     """
+
     is_watching = QtCore.Signal(bool)
     is_uploading = QtCore.Signal(str)
     has_uploaded = QtCore.Signal(str)
-
 
     def __init__(self, **kwargs) -> None:
         super().__init__()
@@ -67,11 +67,14 @@ class Gucker(QtWidgets.QMainWindow):
         self.center_label.setPixmap(self.idle_bitmap)
         self.center_label.setScaledContents(True)
 
-
         self.app = publicqt("github.io.jhnnsrs.gucker", "latest", parent=self)
         self.app.enter()
         self.magic_bar = MagicBar(self.app, dark_mode=True)
-        self.magic_bar.app_state_changed.connect(lambda: self.button.setDisabled(self.magic_bar.process_state == ProcessState.PROVIDING))
+        self.magic_bar.app_state_changed.connect(
+            lambda: self.button.setDisabled(
+                self.magic_bar.process_state == ProcessState.PROVIDING
+            )
+        )
         self.button = QtWidgets.QPushButton("Select Directory to watch")
         self.button.clicked.connect(self.on_base_dir)
 
@@ -83,11 +86,9 @@ class Gucker(QtWidgets.QMainWindow):
             self.button.setText(f"Selected {self.base_dir}")
             self.magic_bar.magicb.setDisabled(False)
 
-
         self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
 
-        
         self.centralWidget = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.center_label)
@@ -114,7 +115,6 @@ class Gucker(QtWidgets.QMainWindow):
             self.settings.setValue("base_dir", "")
             self.magic_bar.magicb.setDisabled(True)
             self.magic_bar.magicb.setText("Select Folder first")
-
 
     def is_watching_changed(self, select) -> None:
         if select:
@@ -152,7 +152,7 @@ class Gucker(QtWidgets.QMainWindow):
 
         Yields:
             Iterator[OmeroFileFragment]: The uploaded file
-        """        """"""
+        """ """"""
 
         if not dataset:
             dataset = create_dataset("Streaming Dataset")
@@ -162,7 +162,7 @@ class Gucker(QtWidgets.QMainWindow):
 
         datadir = os.path.join(base_dir)
 
-        log(f"Streaming items of {datadir}")
+        log(f"Streaming files of {datadir}")
         first_break = False
         self.is_watching.emit(True)
 
@@ -189,15 +189,15 @@ class Gucker(QtWidgets.QMainWindow):
                     try:
                         os.rename(file_path, file_path)
                     except OSError:
-                        logger.warning(f"Could not rename {file_name}. Probably still in use. Trying this again in 1 seconds.")
+                        logger.warning(
+                            f"Could not rename {file_name}. Probably still in use. Trying this again in 1 seconds."
+                        )
                         log(f"Could not rename {file_name}. Probably still in use.")
                         continue
 
-
                     self.is_uploading.emit(file_path)
                     yield upload_bigfile(
-                        file=file_path,
-                        datasets=[dataset] if dataset else None
+                        file=file_path, datasets=[dataset] if dataset else None
                     )
                     self.has_uploaded.emit(file_path)
                     uploaded_files.add(file_name)
@@ -205,11 +205,10 @@ class Gucker(QtWidgets.QMainWindow):
                 time.sleep(1)
 
         self.is_watching.emit(False)
-    
+
 
 def main(**kwargs) -> None:
-    """Entrypoint for the application
-    """
+    """Entrypoint for the application"""
     qtapp = QtWidgets.QApplication(sys.argv)
     main_window = Gucker(**kwargs)
     main_window.show()
