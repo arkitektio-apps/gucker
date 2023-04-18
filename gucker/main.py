@@ -12,13 +12,18 @@ from mikro.api.schema import (
     RepresentationFragment,
     aget_representation,
     upload_bigfile,
-    DatasetFragment
+    create_dataset,
+    DatasetFragment,
 )
 from qtpy import QtWidgets, QtGui
 from qtpy import QtCore
 from arkitekt.qt.magic_bar import MagicBar, ProcessState
 from arkitekt.builders import publicqt
 from arkitekt import log
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 stregistry = StructureRegistry()
@@ -30,15 +35,15 @@ stregistry.register_as_structure(
 
 
 class Gucker(QtWidgets.QMainWindow):
-    """ The main window of the Gucker application
-    
+    """The main window of the Gucker application
+
     This window is the main window of the Gucker application. It is responsible for
     watching a directory and uploading new files to the server.
     """
+
     is_watching = QtCore.Signal(bool)
     is_uploading = QtCore.Signal(str)
     has_uploaded = QtCore.Signal(str)
-
 
     def __init__(self, **kwargs) -> None:
         super().__init__()
@@ -64,10 +69,12 @@ class Gucker(QtWidgets.QMainWindow):
 
         self.app = publicqt("github.io.jhnnsrs.gucker", "latest", parent=self)
         self.app.enter()
-        
-
         self.magic_bar = MagicBar(self.app, dark_mode=True)
-        self.magic_bar.app_state_changed.connect(lambda: self.button.setDisabled(self.magic_bar.process_state == ProcessState.PROVIDING))
+        self.magic_bar.app_state_changed.connect(
+            lambda: self.button.setDisabled(
+                self.magic_bar.process_state == ProcessState.PROVIDING
+            )
+        )
         self.button = QtWidgets.QPushButton("Select Directory to watch")
         self.button.clicked.connect(self.on_base_dir)
 
@@ -79,11 +86,9 @@ class Gucker(QtWidgets.QMainWindow):
             self.button.setText(f"Selected {self.base_dir}")
             self.magic_bar.magicb.setDisabled(False)
 
-
         self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
 
-        
         self.centralWidget = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.center_label)
@@ -110,7 +115,6 @@ class Gucker(QtWidgets.QMainWindow):
             self.settings.setValue("base_dir", "")
             self.magic_bar.magicb.setDisabled(True)
             self.magic_bar.magicb.setText("Select Folder first")
-
 
     def is_watching_changed(self, select) -> None:
         if select:
@@ -148,22 +152,31 @@ class Gucker(QtWidgets.QMainWindow):
 
         Yields:
             Iterator[OmeroFileFragment]: The uploaded file
-        """        """"""
+        """ """"""
+
+        if not dataset:
+            dataset = create_dataset("Streaming Dataset")
+
         proper_file = re.compile(regexp) if regexp else re.compile(".*")
         base_dir = self.settings.value("base_dir")
 
         datadir = os.path.join(base_dir)
 
-        log(f"Streaming items of {datadir}")
+        log(f"Streaming files of {datadir}")
         first_break = False
         self.is_watching.emit(True)
+
+        uploaded_files = set()
 
         while not first_break:
             onlyfiles = [
                 f
                 for f in os.listdir(datadir)
                 if os.path.isfile(os.path.join(datadir, f))
+                and proper_file.match(f)
+                and f not in uploaded_files
             ]
+
             if not onlyfiles:
                 if indefinitely:
                     time.sleep(1)
@@ -171,33 +184,35 @@ class Gucker(QtWidgets.QMainWindow):
                 else:
                     first_break = True
             else:
-                time.sleep(self.grace_period)
-
                 for file_name in onlyfiles:
                     file_path = os.path.join(datadir, file_name)
-
-                    m = proper_file.match(file_name)
-                    if m:
-                        self.is_uploading.emit(file_path)
-                        yield upload_bigfile(
-                            file=file_path,
-                            datasets=[dataset] if dataset else None
+                    try:
+                        os.rename(file_path, file_path)
+                    except OSError:
+                        logger.warning(
+                            f"Could not rename {file_name}. Probably still in use. Trying this again in 1 seconds."
                         )
-                        self.has_uploaded.emit(file_path)
+                        log(f"Could not rename {file_name}. Probably still in use.")
+                        continue
 
-                    os.remove(file_path)
+                    self.is_uploading.emit(file_path)
+                    yield upload_bigfile(
+                        file=file_path, datasets=[dataset] if dataset else None
+                    )
+                    self.has_uploaded.emit(file_path)
+                    uploaded_files.add(file_name)
+
+                time.sleep(1)
 
         self.is_watching.emit(False)
-    
+
 
 def main(**kwargs) -> None:
-    """Entrypoint for the application
-    """
-    app = QtWidgets.QApplication(sys.argv)
-    # app.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
+    """Entrypoint for the application"""
+    qtapp = QtWidgets.QApplication(sys.argv)
     main_window = Gucker(**kwargs)
     main_window.show()
-    sys.exit(app.exec_())
+    sys.exit(qtapp.exec_())
 
 
 if __name__ == "__main__":
