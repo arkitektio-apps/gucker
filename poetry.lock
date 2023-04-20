@@ -211,23 +211,23 @@ trio = ["trio (>=0.16,<0.22)"]
 
 [[package]]
 name = "arkitekt"
-version = "0.4.78"
+version = "0.4.83"
 description = "client for the arkitekt platform"
 category = "main"
 optional = false
 python-versions = ">=3.8,<=3.12"
 files = [
-    {file = "arkitekt-0.4.78-py3-none-any.whl", hash = "sha256:5ff2ad63a069dcd0a9eb39594a72cc6867023140c843f077cd9f6c84d66bd447"},
-    {file = "arkitekt-0.4.78.tar.gz", hash = "sha256:271a45fb17aaf6dae6f7effec2c4f453602d9e72e0047e9b8e050674b9091957"},
+    {file = "arkitekt-0.4.83-py3-none-any.whl", hash = "sha256:eb61f1fa247cf9096304272aedad5096f5aac498d2079351b6a1532569953c61"},
+    {file = "arkitekt-0.4.83.tar.gz", hash = "sha256:8c3bcd76d7ac17c145d7c3beb25c74b60ba589f3644d42adedf93c0cc7bc9749"},
 ]
 
 [package.dependencies]
-fakts = ">=0.3.17"
+fakts = ">=0.3.18"
 fluss = ">=0.1.42"
-herre = ">=0.3.17"
-mikro = ">=0.3.47"
-rekuest = ">=0.1.29"
-unlok = ">=0.1.11"
+herre = ">=0.3.18"
+mikro = ">=0.3.48"
+rekuest = ">=0.1.30"
+unlok = ">=0.1.12"
 
 [package.extras]
 cli = ["rich-click (>=1.6.1,<2.0.0)", "turms (>=0.3.1a0)", "watchfiles (>=0.18.1,<0.19.0)"]
@@ -633,14 +633,14 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "fakts"
-version = "0.3.17"
+version = "0.3.18"
 description = "asynchronous configuration provider ( tailored to support dynamic client-server relations)"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "fakts-0.3.17-py3-none-any.whl", hash = "sha256:4f0c950ec3bbae6a301c717a664b8ec86329654918a26190162eb88e2b1f8b4e"},
-    {file = "fakts-0.3.17.tar.gz", hash = "sha256:0ff07aaecda5fb059850c63c36229fdd3ae8e27f4691f08b96209ea0f1659367"},
+    {file = "fakts-0.3.18-py3-none-any.whl", hash = "sha256:1f757fecd53bc46ef9c8fc68365454853afc3c1bd0f21c9eecc4c022fe33f175"},
+    {file = "fakts-0.3.18.tar.gz", hash = "sha256:f26745327abebe650e13dca4ecbcf904a6084282ba5ad43dc340d4d86ab74426"},
 ]
 
 [package.dependencies]
@@ -666,14 +666,14 @@ files = [
 
 [[package]]
 name = "fluss"
-version = "0.1.42"
+version = "0.1.44"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "fluss-0.1.42-py3-none-any.whl", hash = "sha256:8ceb34d1d84fc334dc2c1f07963aa4732d605abab3dcd404a266aa743e4d4112"},
-    {file = "fluss-0.1.42.tar.gz", hash = "sha256:641c5b4c0ac8bc6e499a0423e1deb3536f98eb150dbe6cbba84e2b2d5fc22e4b"},
+    {file = "fluss-0.1.44-py3-none-any.whl", hash = "sha256:4f038060cf92ed09d22dd972c9df32add847579628cbbe2d43d92a5fe07e236c"},
+    {file = "fluss-0.1.44.tar.gz", hash = "sha256:d8dacfef584f5ac52ff19116064718f1ba029e5e4bd5a600bac652db0cc26d0a"},
 ]
 
 [package.dependencies]
@@ -813,14 +813,14 @@ files = [
 
 [[package]]
 name = "herre"
-version = "0.3.17"
+version = "0.3.18"
 description = "oauth2/openid client tailored to pyqt and async environments"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "herre-0.3.17-py3-none-any.whl", hash = "sha256:ab41f432af0a73893809882b39bd48acadcd4b9c0178433d3b6f5d09273a5af2"},
-    {file = "herre-0.3.17.tar.gz", hash = "sha256:e6d138b5378ab0a1abec8ff3b70fbee0ae98cba8f5fac6387d766bf9b8b4331a"},
+    {file = "herre-0.3.18-py3-none-any.whl", hash = "sha256:284ddde4671f55dcf82482548c369af085a7aea21c9c18e23ffdeb75a02ddf4e"},
+    {file = "herre-0.3.18.tar.gz", hash = "sha256:247aadda56b7144cd1743f07a8f0e41d4f092d64468aba72356b3c45feb4a13c"},
 ]
 
 [package.dependencies]
@@ -848,14 +848,14 @@ files = [
 
 [[package]]
 name = "importlib-metadata"
-version = "6.4.1"
+version = "6.5.0"
 description = "Read metadata from Python packages"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "importlib_metadata-6.4.1-py3-none-any.whl", hash = "sha256:63ace321e24167d12fbb176b6015f4dbe06868c54a2af4f15849586afb9027fd"},
-    {file = "importlib_metadata-6.4.1.tar.gz", hash = "sha256:eb1a7933041f0f85c94cd130258df3fb0dec060ad8c1c9318892ef4192c47ce1"},
+    {file = "importlib_metadata-6.5.0-py3-none-any.whl", hash = "sha256:03ba783c3a2c69d751b109fc0c94a62c51f581b3d6acf8ed1331b6d5729321ff"},
+    {file = "importlib_metadata-6.5.0.tar.gz", hash = "sha256:7a8bdf1bc3a726297f5cfbc999e6e7ff6b4fa41b26bba4afc580448624460045"},
 ]
 
 [package.dependencies]
@@ -965,14 +965,14 @@ altgraph = ">=0.17"
 
 [[package]]
 name = "mikro"
-version = "0.3.47"
+version = "0.3.48"
 description = "images for arkitekt"
 category = "main"
 optional = false
 python-versions = ">=3.8,<=3.12"
 files = [
-    {file = "mikro-0.3.47-py3-none-any.whl", hash = "sha256:fa0b4af8bdead24b82def5c4327ba76da5d5e01001a6805aaea3c07f65fa4d1b"},
-    {file = "mikro-0.3.47.tar.gz", hash = "sha256:4fc5b2a6ded07fa6e72adca6cb2316296e9087a903b888a6d0449b52c4a15964"},
+    {file = "mikro-0.3.48-py3-none-any.whl", hash = "sha256:b4652bff6f645e8bd0b4441a16070da289b19091150dc787f31c9f585d9abfa1"},
+    {file = "mikro-0.3.48.tar.gz", hash = "sha256:a3cda23898652e50f30394b98779b4a480474272fd2be306b20d13df6bfc1dcc"},
 ]
 
 [package.dependencies]
@@ -1409,14 +1409,14 @@ email = ["email-validator (>=1.0.3)"]
 
 [[package]]
 name = "pygments"
-version = "2.15.0"
+version = "2.15.1"
 description = "Pygments is a syntax highlighting package written in Python."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "Pygments-2.15.0-py3-none-any.whl", hash = "sha256:77a3299119af881904cd5ecd1ac6a66214b6e9bed1f2db16993b54adede64094"},
-    {file = "Pygments-2.15.0.tar.gz", hash = "sha256:f7e36cffc4c517fbc252861b9a6e4644ca0e5abadf9a113c72d1358ad09b9500"},
+    {file = "Pygments-2.15.1-py3-none-any.whl", hash = "sha256:db2db3deb4b4179f399a09054b023b6a586b76499d36965813c71aa8ed7b5fd1"},
+    {file = "Pygments-2.15.1.tar.gz", hash = "sha256:8ace4d3c1dd481894b2005f560ead0f9f19ee64fe983366be1a21e171d12775c"},
 ]
 
 [package.extras]
@@ -1699,14 +1699,14 @@ websockets = ["websockets (>=10.2,<11.0)"]
 
 [[package]]
 name = "rekuest"
-version = "0.1.29"
+version = "0.1.30"
 description = "rpc and node backbone"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "rekuest-0.1.29-py3-none-any.whl", hash = "sha256:e341c3693d4487ec398a45d14da88d44310bfbc8ff4484030df628e6a5f58a4e"},
-    {file = "rekuest-0.1.29.tar.gz", hash = "sha256:8ba936205dcae39e8260aa25744898ff217c1c20433de8a9b339ef4127a95740"},
+    {file = "rekuest-0.1.30-py3-none-any.whl", hash = "sha256:d0cba7ed87f82fbcc62d797a25382057e3e4e70cfc2821603a0499c6220aed13"},
+    {file = "rekuest-0.1.30.tar.gz", hash = "sha256:52c73223c3d91e56c8fd88c1ac99f7de04a643e99522cc2d606186ab605c4c79"},
 ]
 
 [package.dependencies]
@@ -1909,14 +1909,14 @@ files = [
 
 [[package]]
 name = "unlok"
-version = "0.1.11"
+version = "0.1.12"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "unlok-0.1.11-py3-none-any.whl", hash = "sha256:edb2b976da29d07b2a6de53338abf19a82b6f8bf2d38b2d6db96ee31cc613b63"},
-    {file = "unlok-0.1.11.tar.gz", hash = "sha256:13e609a0bc7e1633459b44398ff4c7d39337b099ff90538a65f98137d8a21382"},
+    {file = "unlok-0.1.12-py3-none-any.whl", hash = "sha256:3df8985ffac3f7a39f908c1e6bd598ee5300747b0f570e71531ec23fe3b79eb8"},
+    {file = "unlok-0.1.12.tar.gz", hash = "sha256:c6c4c1ec4880946c708895a7743e0c1e233e0a845a998986379d95591e6e37a6"},
 ]
 
 [package.dependencies]
@@ -2288,4 +2288,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "0575d7832c768b56754028efff9c0b28217fdf98445bb706f2ac3df08026f045"
+content-hash = "6cc83a7b6c30d82503bc186821c9fbfc80fe2e5525cf91e99fbb7a4e6c3bf893"
