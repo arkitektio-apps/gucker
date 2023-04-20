@@ -9,8 +9,6 @@ from rekuest.structures.registry import StructureRegistry
 from gucker.env import get_asset_file
 from mikro.api.schema import (
     OmeroFileFragment,
-    RepresentationFragment,
-    aget_representation,
     upload_bigfile,
     create_dataset,
     DatasetFragment,
@@ -27,11 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 stregistry = StructureRegistry()
-
-
-stregistry.register_as_structure(
-    RepresentationFragment, "representation", aget_representation
-)
 
 
 class Gucker(QtWidgets.QMainWindow):
