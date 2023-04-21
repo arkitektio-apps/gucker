@@ -19,7 +19,9 @@ from arkitekt.qt.magic_bar import MagicBar, ProcessState
 from arkitekt.builders import publicqt
 from arkitekt import log
 import logging
-
+from gucker.api.schema import get_export_stage
+from mikro import Stage, Image
+import tifffile
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +48,7 @@ class Gucker(QtWidgets.QMainWindow):
         self.setStyleSheet("background-color: #1e1e1e; color: #ffffff;")
         self.settings = QtCore.QSettings("Gucker", "gg")
         self.base_dir = self.settings.value("base_dir", "")
+        self.export_dir = self.settings.value("export_dir", "")
 
         self.is_watching.connect(self.is_watching_changed)
         self.is_uploading.connect(self.is_uploading_changed)
@@ -70,6 +73,8 @@ class Gucker(QtWidgets.QMainWindow):
         )
         self.button = QtWidgets.QPushButton("Select Directory to watch")
         self.button.clicked.connect(self.on_base_dir)
+        self.exportbutton = QtWidgets.QPushButton("Select Directory to export")
+        self.exportbutton.clicked.connect(self.on_export_dir)
 
         if self.base_dir == "":
             self.button.setText("Select Watching Folder")
@@ -86,28 +91,53 @@ class Gucker(QtWidgets.QMainWindow):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.center_label)
         layout.addWidget(self.button)
+        layout.addWidget(self.exportbutton)
         layout.addWidget(self.magic_bar)
         self.centralWidget.setLayout(layout)
         self.setCentralWidget(self.centralWidget)
 
         # self.app.rekuest.register(on_provide=self.on_stream_provide)(self.stream_folder)
         self.app.rekuest.register()(self.stream_files)
+        self.app.rekuest.register()(self.export_stage)
         self.setWindowTitle("Gucker")
 
     def on_base_dir(self):
         self.base_dir = QtWidgets.QFileDialog.getExistingDirectory(
-            self, "Select Folder"
+            self, "Select Stream Folder"
         )
         if self.base_dir:
-            self.button.setText(f"Selected {self.base_dir}")
-            self.magic_bar.magicb.setText("Select Folder first")
             self.settings.setValue("base_dir", self.base_dir)
-            self.magic_bar.magicb.setDisabled(False)
+            self.button.setText(f"Selected {self.base_dir}")
         else:
             self.button.setText("Select Watching Folder")
-            self.settings.setValue("base_dir", "")
+
+        self.check_folders_sane()
+
+    def check_folders_sane(self):
+        if not self.base_dir:
+            self.statusBar.showMessage("Select a folder to watch first")
             self.magic_bar.magicb.setDisabled(True)
-            self.magic_bar.magicb.setText("Select Folder first")
+            return False
+        if not self.export_dir:
+            self.statusBar.showMessage("Select a folder to export first")
+            self.magic_bar.magicb.setDisabled(True)
+            return False
+
+        self.statusBar.showMessage("All set ready to go")
+        self.magic_bar.magicb.setDisabled(False)
+        return True
+
+    def on_export_dir(self):
+        self.export_dir = QtWidgets.QFileDialog.getExistingDirectory(
+            self, "Select Export Folder"
+        )
+        if self.export_dir:
+            self.settings.setValue("export_dir", self.export_dir)
+            self.exportbutton.setText(f"Selected {self.export_dir}")
+        else:
+            self.exportbutton.setText("Select Export Folder")
+
+        self.check_folders_sane()
 
     def is_watching_changed(self, select) -> None:
         if select:
@@ -198,6 +228,40 @@ class Gucker(QtWidgets.QMainWindow):
                 time.sleep(1)
 
         self.is_watching.emit(False)
+
+    def export_representation(self, representation: Image, dir: str) -> None:
+        tifffile.imsave(
+            os.path.join(dir, f"ID({representation.id}) {representation.name}.tiff"),
+            representation.data,
+        )
+
+    def export_stage(self, stage: Stage) -> None:
+        """Export Stage
+
+        Exports the stage to the export directory
+
+        Args:
+            stage (Stage): The stage to export
+        """
+        assert self.export_dir, "No export directory selected"
+        export_stage = get_export_stage(stage)
+        print(export_stage)
+
+        stage_dir = os.path.join(self.export_dir, f"ID({stage.id}) {export_stage.name}")
+        os.makedirs(stage_dir, exist_ok=True)
+        for item in export_stage.positions:
+            pos_dir = os.path.join(stage_dir, f"ID({item.id}) {item.name}")
+            os.makedirs(pos_dir, exist_ok=True)
+            for image in item.omeros:
+                image_dir = os.path.join(
+                    pos_dir,
+                    f"ID({image.representation.id}) {image.representation.name} {image.acquisition_date}",
+                )
+                os.makedirs(image_dir, exist_ok=True)
+                self.export_representation(image.representation, image_dir)
+
+                for file in image.representation.derived:
+                    self.export_representation(file, image_dir)
 
 
 def main(**kwargs) -> None:

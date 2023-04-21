@@ -211,26 +211,27 @@ trio = ["trio (>=0.16,<0.22)"]
 
 [[package]]
 name = "arkitekt"
-version = "0.4.83"
+version = "0.4.86"
 description = "client for the arkitekt platform"
 category = "main"
 optional = false
 python-versions = ">=3.8,<=3.12"
 files = [
-    {file = "arkitekt-0.4.83-py3-none-any.whl", hash = "sha256:eb61f1fa247cf9096304272aedad5096f5aac498d2079351b6a1532569953c61"},
-    {file = "arkitekt-0.4.83.tar.gz", hash = "sha256:8c3bcd76d7ac17c145d7c3beb25c74b60ba589f3644d42adedf93c0cc7bc9749"},
+    {file = "arkitekt-0.4.86-py3-none-any.whl", hash = "sha256:dfba1651e1cb247b879292ae938bea65f81399ec81f6ee5f66d6647f3fe4581e"},
+    {file = "arkitekt-0.4.86.tar.gz", hash = "sha256:91e23a2f2d8374377715b262f89f0226b752983b86f9dd4e1a60bd4d0c540451"},
 ]
 
 [package.dependencies]
-fakts = ">=0.3.18"
-fluss = ">=0.1.42"
+fakts = ">=0.3.19"
+fluss = ">=0.1.46"
 herre = ">=0.3.18"
-mikro = ">=0.3.48"
+mikro = ">=0.3.56"
 rekuest = ">=0.1.30"
 unlok = ">=0.1.12"
 
 [package.extras]
 cli = ["rich-click (>=1.6.1,<2.0.0)", "turms (>=0.3.1a0)", "watchfiles (>=0.18.1,<0.19.0)"]
+scheduler = ["reaktion (>=0.1.18)"]
 
 [[package]]
 name = "asciitree"
@@ -633,14 +634,14 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "fakts"
-version = "0.3.18"
+version = "0.3.19"
 description = "asynchronous configuration provider ( tailored to support dynamic client-server relations)"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "fakts-0.3.18-py3-none-any.whl", hash = "sha256:1f757fecd53bc46ef9c8fc68365454853afc3c1bd0f21c9eecc4c022fe33f175"},
-    {file = "fakts-0.3.18.tar.gz", hash = "sha256:f26745327abebe650e13dca4ecbcf904a6084282ba5ad43dc340d4d86ab74426"},
+    {file = "fakts-0.3.19-py3-none-any.whl", hash = "sha256:bc9b6f7be065eb61fa8b22c3e2a428ddeebbd22d4f4fe266b13d941e34695c25"},
+    {file = "fakts-0.3.19.tar.gz", hash = "sha256:6fd8d17ee7951c03a85ebee2b89fdc9feb1f9cd498091e3cd962d44081a810b0"},
 ]
 
 [package.dependencies]
@@ -666,14 +667,14 @@ files = [
 
 [[package]]
 name = "fluss"
-version = "0.1.44"
+version = "0.1.46"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "fluss-0.1.44-py3-none-any.whl", hash = "sha256:4f038060cf92ed09d22dd972c9df32add847579628cbbe2d43d92a5fe07e236c"},
-    {file = "fluss-0.1.44.tar.gz", hash = "sha256:d8dacfef584f5ac52ff19116064718f1ba029e5e4bd5a600bac652db0cc26d0a"},
+    {file = "fluss-0.1.46-py3-none-any.whl", hash = "sha256:d06b28b3c6e5d449171d37c285102b05f18b4b39065594cb74a70de8151b7c46"},
+    {file = "fluss-0.1.46.tar.gz", hash = "sha256:9ac0882d3c87f31c32161429fa393a5a8ecca14ddd3af412589f1b5faa5ef915"},
 ]
 
 [package.dependencies]
@@ -965,14 +966,14 @@ altgraph = ">=0.17"
 
 [[package]]
 name = "mikro"
-version = "0.3.48"
+version = "0.3.57"
 description = "images for arkitekt"
 category = "main"
 optional = false
 python-versions = ">=3.8,<=3.12"
 files = [
-    {file = "mikro-0.3.48-py3-none-any.whl", hash = "sha256:b4652bff6f645e8bd0b4441a16070da289b19091150dc787f31c9f585d9abfa1"},
-    {file = "mikro-0.3.48.tar.gz", hash = "sha256:a3cda23898652e50f30394b98779b4a480474272fd2be306b20d13df6bfc1dcc"},
+    {file = "mikro-0.3.57-py3-none-any.whl", hash = "sha256:a15faf10eb778bd7d0a938619898f18662b510607c11853233e84771fcba583b"},
+    {file = "mikro-0.3.57.tar.gz", hash = "sha256:67debc3eeed2cc77c9a290c559f74849f95453b895d59b1e8beef8c183c099da"},
 ]
 
 [package.dependencies]
@@ -1807,14 +1808,14 @@ boto3 = ["aiobotocore[boto3] (>=2.5.0,<2.6.0)"]
 
 [[package]]
 name = "setuptools"
-version = "67.6.1"
+version = "67.7.1"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.6.1-py3-none-any.whl", hash = "sha256:e728ca814a823bf7bf60162daf9db95b93d532948c4c0bea762ce62f60189078"},
-    {file = "setuptools-67.6.1.tar.gz", hash = "sha256:257de92a9d50a60b8e22abfcbb771571fde0dbf3ec234463212027a4eeecbe9a"},
+    {file = "setuptools-67.7.1-py3-none-any.whl", hash = "sha256:6f0839fbdb7e3cfef1fc38d7954f5c1c26bf4eebb155a55c9bf8faf997b9fb67"},
+    {file = "setuptools-67.7.1.tar.gz", hash = "sha256:bb16732e8eb928922eabaa022f881ae2b7cdcfaf9993ef1f5e841a96d32b8e0c"},
 ]
 
 [package.extras]
@@ -2288,4 +2289,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "6cc83a7b6c30d82503bc186821c9fbfc80fe2e5525cf91e99fbb7a4e6c3bf893"
+content-hash = "6fd92b9d5ef421acbe89278319deffa8718fdd20b1b56b09b402a3bd035b570a"

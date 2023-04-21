@@ -8,7 +8,7 @@ packages = [{ include = "gucker" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-arkitekt = "^0.4.83"
+arkitekt = "^0.4.68"
 
 [tool.mypy]
 exclude = ["venv/"]

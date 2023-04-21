@@ -1,0 +1,30 @@
+fragment ExportStage on Stage {
+  name
+  positions {
+    name
+    id
+    omeros {
+      acquisitionDate
+      representation {
+        store
+        name
+        id
+        fileOrigins {
+          id
+          file
+        }
+        derived(flatten: 4) {
+          id
+          store
+          name
+        }
+      }
+    }
+  }
+}
+
+query GetExportStage($id: ID!) {
+  stage(id: $id) {
+    ...ExportStage
+  }
+}
