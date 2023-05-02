@@ -1,0 +1,16 @@
+fragment ExportDataset on Dataset {
+  id
+  name
+  omerofiles {
+    id
+    name
+    type
+    file
+  }
+}
+
+query GetExportDataset($id: ID!) {
+  dataset(id: $id) {
+    ...ExportDataset
+  }
+}

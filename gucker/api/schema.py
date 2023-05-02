@@ -1,12 +1,27 @@
 from rath.scalars import ID
 from mikro.funcs import execute, aexecute
-from mikro.traits import Position, Representation, Omero, Stage
 from enum import Enum
+from mikro.traits import Representation, Stage, Position, Omero
 from mikro.scalars import Store, File
-from datetime import datetime
 from pydantic import BaseModel, Field
-from typing import Optional, Literal, Tuple
+from datetime import datetime
+from typing import Tuple, Literal, Optional
 from mikro.rath import MikroRath
+
+
+class OmeroFileType(str, Enum):
+    """An enumeration."""
+
+    TIFF = "TIFF"
+    "Tiff"
+    JPEG = "JPEG"
+    "Jpeg"
+    MSR = "MSR"
+    "MSR File"
+    CZI = "CZI"
+    "Zeiss Microscopy File"
+    UNKNOWN = "UNKNOWN"
+    "Unwknon File Format"
 
 
 class ExportStageFragmentPositionsOmerosRepresentationFileorigins(BaseModel):
@@ -158,6 +173,31 @@ class ExportStageFragment(Stage, BaseModel):
         frozen = True
 
 
+class ExportDatasetFragmentOmerofiles(BaseModel):
+    typename: Optional[Literal["OmeroFile"]] = Field(alias="__typename", exclude=True)
+    id: ID
+    name: str
+    "The name of the file"
+    type: OmeroFileType
+    "The type of the file"
+    file: Optional[File]
+    "The file"
+
+    class Config:
+        frozen = True
+
+
+class ExportDatasetFragment(BaseModel):
+    typename: Optional[Literal["Dataset"]] = Field(alias="__typename", exclude=True)
+    id: ID
+    name: str
+    "The name of the experiment"
+    omerofiles: Tuple[ExportDatasetFragmentOmerofiles, ...]
+
+    class Config:
+        frozen = True
+
+
 class GetExportStageQuery(BaseModel):
     stage: Optional[ExportStageFragment]
     'Get a single experiment by ID"\n    \n    Returns a single experiment by ID. If the user does not have access\n    to the experiment, an error will be raised.\n    \n    '
@@ -167,6 +207,17 @@ class GetExportStageQuery(BaseModel):
 
     class Meta:
         document = "fragment ExportStage on Stage {\n  name\n  positions {\n    name\n    id\n    omeros {\n      acquisitionDate\n      representation {\n        store\n        name\n        id\n        fileOrigins {\n          id\n          file\n        }\n        derived(flatten: 4) {\n          id\n          store\n          name\n        }\n      }\n    }\n  }\n}\n\nquery GetExportStage($id: ID!) {\n  stage(id: $id) {\n    ...ExportStage\n  }\n}"
+
+
+class GetExportDatasetQuery(BaseModel):
+    dataset: Optional[ExportDatasetFragment]
+    'Get a single experiment by ID"\n    \n    Returns a single experiment by ID. If the user does not have access\n    to the experiment, an error will be raised.\n    \n    '
+
+    class Arguments(BaseModel):
+        id: ID
+
+    class Meta:
+        document = "fragment ExportDataset on Dataset {\n  id\n  name\n  omerofiles {\n    id\n    name\n    type\n    file\n  }\n}\n\nquery GetExportDataset($id: ID!) {\n  dataset(id: $id) {\n    ...ExportDataset\n  }\n}"
 
 
 async def aget_export_stage(
@@ -209,3 +260,49 @@ def get_export_stage(id: ID, rath: MikroRath = None) -> Optional[ExportStageFrag
     Returns:
         Optional[ExportStageFragment]"""
     return execute(GetExportStageQuery, {"id": id}, rath=rath).stage
+
+
+async def aget_export_dataset(
+    id: ID, rath: MikroRath = None
+) -> Optional[ExportDatasetFragment]:
+    """GetExportDataset
+
+
+     dataset:
+        A dataset is a collection of data files and metadata files.
+        It mimics the concept of a folder in a file system and is the top level
+        object in the data model.
+
+
+
+
+    Arguments:
+        id (ID): id
+        rath (mikro.rath.MikroRath, optional): The mikro rath client
+
+    Returns:
+        Optional[ExportDatasetFragment]"""
+    return (await aexecute(GetExportDatasetQuery, {"id": id}, rath=rath)).dataset
+
+
+def get_export_dataset(
+    id: ID, rath: MikroRath = None
+) -> Optional[ExportDatasetFragment]:
+    """GetExportDataset
+
+
+     dataset:
+        A dataset is a collection of data files and metadata files.
+        It mimics the concept of a folder in a file system and is the top level
+        object in the data model.
+
+
+
+
+    Arguments:
+        id (ID): id
+        rath (mikro.rath.MikroRath, optional): The mikro rath client
+
+    Returns:
+        Optional[ExportDatasetFragment]"""
+    return execute(GetExportDatasetQuery, {"id": id}, rath=rath).dataset

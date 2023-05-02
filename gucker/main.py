@@ -19,9 +19,10 @@ from arkitekt.qt.magic_bar import MagicBar, ProcessState
 from arkitekt.builders import publicqt
 from arkitekt import log
 import logging
-from gucker.api.schema import get_export_stage
+from gucker.api.schema import get_export_stage, get_export_dataset
 from mikro import Stage, Image
 import tifffile
+from arkitekt.tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -76,14 +77,6 @@ class Gucker(QtWidgets.QMainWindow):
         self.exportbutton = QtWidgets.QPushButton("Select Directory to export")
         self.exportbutton.clicked.connect(self.on_export_dir)
 
-        if self.base_dir == "":
-            self.button.setText("Select Watching Folder")
-            self.magic_bar.magicb.setDisabled(True)
-            self.magic_bar.magicb.setText(self.magic_bar.CONNECT_LABEL)
-        else:
-            self.button.setText(f"Selected {self.base_dir}")
-            self.magic_bar.magicb.setDisabled(False)
-
         self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
 
@@ -99,7 +92,10 @@ class Gucker(QtWidgets.QMainWindow):
         # self.app.rekuest.register(on_provide=self.on_stream_provide)(self.stream_folder)
         self.app.rekuest.register()(self.stream_files)
         self.app.rekuest.register()(self.export_stage)
+        self.app.rekuest.register()(self.export_dataset)
         self.setWindowTitle("Gucker")
+
+        self.check_folders_sane()
 
     def on_base_dir(self):
         self.base_dir = QtWidgets.QFileDialog.getExistingDirectory(
@@ -115,14 +111,19 @@ class Gucker(QtWidgets.QMainWindow):
 
     def check_folders_sane(self):
         if not self.base_dir:
+            self.button.setText("Select Watching Folder")
             self.statusBar.showMessage("Select a folder to watch first")
             self.magic_bar.magicb.setDisabled(True)
             return False
+
+        self.button.setText(f"Selected {self.base_dir}")
         if not self.export_dir:
+            self.exportbutton.setText("Select Export Folder")
             self.statusBar.showMessage("Select a folder to export first")
             self.magic_bar.magicb.setDisabled(True)
             return False
 
+        self.exportbutton.setText(f"Selected {self.export_dir}")
         self.statusBar.showMessage("All set ready to go")
         self.magic_bar.magicb.setDisabled(False)
         return True
@@ -262,6 +263,26 @@ class Gucker(QtWidgets.QMainWindow):
 
                 for file in image.representation.derived:
                     self.export_representation(file, image_dir)
+
+    def export_dataset(self, dataset: DatasetFragment) -> None:
+        """Export Files in Dataset
+
+        Exports the files of a dataset to the export directory
+        (does not include images but only original files))
+
+        Args:
+            stage (Stage): The stage to export
+        """
+        assert self.export_dir, "No export directory selected"
+        export_dataset = get_export_dataset(dataset)
+        print(export_dataset)
+
+        export_dir = os.path.join(
+            self.export_dir, f"ID({export_dataset.id}) {export_dataset.name}"
+        )
+        os.makedirs(export_dir, exist_ok=True)
+        for item in tqdm(export_dataset.omerofiles):
+            item.file.download(filename=os.path.join(export_dir, item.name))
 
 
 def main(**kwargs) -> None:
