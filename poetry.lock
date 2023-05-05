@@ -211,27 +211,27 @@ trio = ["trio (>=0.16,<0.22)"]
 
 [[package]]
 name = "arkitekt"
-version = "0.4.102"
+version = "0.4.109"
 description = "client for the arkitekt platform"
 category = "main"
 optional = false
 python-versions = ">=3.8,<=3.12"
 files = [
-    {file = "arkitekt-0.4.102-py3-none-any.whl", hash = "sha256:a7caef8bf16935ae8e466791fd4db144e660aa6e5b6eca4b9bbcd2cceeb78bb8"},
-    {file = "arkitekt-0.4.102.tar.gz", hash = "sha256:d38e886f3cac7a8aef7430344545aae48283a8ca5c248e55a89e5eb79400daed"},
+    {file = "arkitekt-0.4.109-py3-none-any.whl", hash = "sha256:9401beb4f045bf473268ae6c3c3fc585533373d9056f95ae0998c1d3b58dbf3e"},
+    {file = "arkitekt-0.4.109.tar.gz", hash = "sha256:64de779118d61aa818c624d60de5dee1dee03a05c7d20484b4dd4ca14f417495"},
 ]
 
 [package.dependencies]
-fakts = ">=0.3.21"
+fakts = ">=0.3.23"
 fluss = ">=0.1.49"
-herre = ">=0.3.19"
-mikro = ">=0.3.61"
-rekuest = ">=0.1.30"
-unlok = ">=0.1.12"
+herre = ">=0.3.20"
+mikro = ">=0.3.64"
+rekuest = ">=0.1.33"
+unlok = ">=0.1.13"
 
 [package.extras]
 cli = ["rich-click (>=1.6.1,<2.0.0)", "turms (>=0.3.1a0)", "watchfiles (>=0.18.1,<0.19.0)"]
-scheduler = ["reaktion (>=0.1.23)"]
+scheduler = ["reaktion (>=0.1.25)"]
 
 [[package]]
 name = "asciitree"
@@ -634,14 +634,14 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "fakts"
-version = "0.3.21"
+version = "0.3.23"
 description = "asynchronous configuration provider ( tailored to support dynamic client-server relations)"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "fakts-0.3.21-py3-none-any.whl", hash = "sha256:e7a5221e6984f61bc5fe69ae34374c8774bdfb2d9ab849e870085c69cc61ae90"},
-    {file = "fakts-0.3.21.tar.gz", hash = "sha256:437b10d3ebd0fdc55bf50fb1265aa927dbfccf275a61a2f5de57e031ad3c99ec"},
+    {file = "fakts-0.3.23-py3-none-any.whl", hash = "sha256:ff6e5f8f796625d27b6ed83188ff522c571024e13aa6825b2fe1633e769ee68a"},
+    {file = "fakts-0.3.23.tar.gz", hash = "sha256:3160e143a93bd074ccd62ed534cc21b1b81ce7ffd3f7532cc4030fbe0968a511"},
 ]
 
 [package.dependencies]
@@ -667,14 +667,14 @@ files = [
 
 [[package]]
 name = "fluss"
-version = "0.1.49"
+version = "0.1.50"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "fluss-0.1.49-py3-none-any.whl", hash = "sha256:554888eb37888d7dd478f9fda6cf6d156ff7b9d3f29c397126878943a7453067"},
-    {file = "fluss-0.1.49.tar.gz", hash = "sha256:64e229de69c8b2f1950c9a10835875f6ae39f27bacbeb806049df6e7e8f7280b"},
+    {file = "fluss-0.1.50-py3-none-any.whl", hash = "sha256:99cbf9bee9c572d8e319728d6fcd6a7006f67ab87b2b7fcf067696a3f37af36d"},
+    {file = "fluss-0.1.50.tar.gz", hash = "sha256:5e0f5bb2b22355186a2def460c9eb0eb754dbd7ba2c7f282c67507b1425067ce"},
 ]
 
 [package.dependencies]
@@ -814,14 +814,14 @@ files = [
 
 [[package]]
 name = "herre"
-version = "0.3.19"
+version = "0.3.20"
 description = "oauth2/openid client tailored to pyqt and async environments"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "herre-0.3.19-py3-none-any.whl", hash = "sha256:b7eaaada529f11484c0661fc708e7138e8e50f6d1a6d9e8d7acc65fe56a59ead"},
-    {file = "herre-0.3.19.tar.gz", hash = "sha256:f41cc1959d0b9994ef585cad7077044c4fce19bc6096535b4709aa6119ce1141"},
+    {file = "herre-0.3.20-py3-none-any.whl", hash = "sha256:98fdfa78fdb5c9d29d75d3713ffaf7e0008a6d5bcd68f01c481a34b22fcb387a"},
+    {file = "herre-0.3.20.tar.gz", hash = "sha256:9d0787154cebf1002278631ab17f7c03c59f2a05d87c3baa812a95c76fed6074"},
 ]
 
 [package.dependencies]
@@ -966,14 +966,14 @@ altgraph = ">=0.17"
 
 [[package]]
 name = "mikro"
-version = "0.3.61"
+version = "0.3.64"
 description = "images for arkitekt"
 category = "main"
 optional = false
 python-versions = ">=3.8,<=3.12"
 files = [
-    {file = "mikro-0.3.61-py3-none-any.whl", hash = "sha256:f87c3614675dfe1f1f1173b81fba028ddb3e3e241c4bdbaa2b4b0949bcf417a3"},
-    {file = "mikro-0.3.61.tar.gz", hash = "sha256:3911bd45e8687fbcfc1b4bb38aa42915a6fea1818d096c065c7b740e93bd2a30"},
+    {file = "mikro-0.3.64-py3-none-any.whl", hash = "sha256:fb2387b79374bfbeaebb67744f076d407b354c2dd2459a518c598ed9129a8cb0"},
+    {file = "mikro-0.3.64.tar.gz", hash = "sha256:83aa09a153d0b1540734029c559e592ef47a09a57e6d4ace33ff5e9eaccea409"},
 ]
 
 [package.dependencies]
@@ -1700,14 +1700,14 @@ websockets = ["websockets (>=10.2,<11.0)"]
 
 [[package]]
 name = "rekuest"
-version = "0.1.30"
+version = "0.1.33"
 description = "rpc and node backbone"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "rekuest-0.1.30-py3-none-any.whl", hash = "sha256:d0cba7ed87f82fbcc62d797a25382057e3e4e70cfc2821603a0499c6220aed13"},
-    {file = "rekuest-0.1.30.tar.gz", hash = "sha256:52c73223c3d91e56c8fd88c1ac99f7de04a643e99522cc2d606186ab605c4c79"},
+    {file = "rekuest-0.1.33-py3-none-any.whl", hash = "sha256:72630be30a204e1171f7a3737498040911b8ee6f890a281c9847bb7749028b74"},
+    {file = "rekuest-0.1.33.tar.gz", hash = "sha256:f4baaf172aa540806fd78055b8b21fc98bb40bf67578536ca5803d88ab751c37"},
 ]
 
 [package.dependencies]
@@ -1949,14 +1949,14 @@ files = [
 
 [[package]]
 name = "unlok"
-version = "0.1.12"
+version = "0.1.13"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "unlok-0.1.12-py3-none-any.whl", hash = "sha256:3df8985ffac3f7a39f908c1e6bd598ee5300747b0f570e71531ec23fe3b79eb8"},
-    {file = "unlok-0.1.12.tar.gz", hash = "sha256:c6c4c1ec4880946c708895a7743e0c1e233e0a845a998986379d95591e6e37a6"},
+    {file = "unlok-0.1.13-py3-none-any.whl", hash = "sha256:90f84824228b633bcc3a47be40148b027dc4d4353fbd00d73a17d9f26bcd7e79"},
+    {file = "unlok-0.1.13.tar.gz", hash = "sha256:7f75fc2039fd282ac9153b639052f5f9461d4666424838b6514b3f414951d396"},
 ]
 
 [package.dependencies]
@@ -2328,4 +2328,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "cec385c25a09554dde9e8a917a576d4f378301ea242cb44334bd2457e370044e"
+content-hash = "733df274f18b95e3a35a0b062ae0fda12e2803335e87e3fa2971aaa02613f4e8"
