@@ -1,12 +1,12 @@
-from rath.scalars import ID
-from mikro.funcs import execute, aexecute
-from enum import Enum
-from mikro.traits import Representation, Stage, Position, Omero
-from mikro.scalars import Store, File
-from pydantic import BaseModel, Field
-from datetime import datetime
-from typing import Tuple, Literal, Optional
+from pydantic import Field, BaseModel
+from mikro.traits import Position, Representation, Omero, Stage
 from mikro.rath import MikroRath
+from typing import Tuple, Literal, Optional
+from enum import Enum
+from mikro.scalars import Store, MetricValue
+from rath.scalars import ID
+from datetime import datetime
+from mikro.funcs import aexecute, execute
 
 
 class OmeroFileType(str, Enum):
@@ -24,11 +24,45 @@ class OmeroFileType(str, Enum):
     "Unwknon File Format"
 
 
+class ExportStageFragmentPositionsOmerosTimepointsEra(BaseModel):
+    """Era(id, created_by, created_through, created_while, name, start, end, created_at)"""
+
+    typename: Optional[Literal["Era"]] = Field(alias="__typename", exclude=True)
+    name: str
+    "The name of the era"
+
+    class Config:
+        frozen = True
+
+
+class ExportStageFragmentPositionsOmerosTimepoints(BaseModel):
+    """The relative position of a sample on a microscope stage"""
+
+    typename: Optional[Literal["Timepoint"]] = Field(alias="__typename", exclude=True)
+    era: ExportStageFragmentPositionsOmerosTimepointsEra
+    delta_t: Optional[float] = Field(alias="deltaT")
+
+    class Config:
+        frozen = True
+
+
 class ExportStageFragmentPositionsOmerosRepresentationFileorigins(BaseModel):
     typename: Optional[Literal["OmeroFile"]] = Field(alias="__typename", exclude=True)
     id: ID
-    file: Optional[File]
+    file: str
     "The file"
+
+    class Config:
+        frozen = True
+
+
+class ExportStageFragmentPositionsOmerosRepresentationDerivedMetrics(BaseModel):
+    typename: Optional[Literal["Metric"]] = Field(alias="__typename", exclude=True)
+    id: ID
+    key: str
+    "The Key"
+    value: Optional[MetricValue]
+    "Value"
 
     class Config:
         frozen = True
@@ -76,6 +110,13 @@ class ExportStageFragmentPositionsOmerosRepresentationDerived(
     store: Optional[Store]
     name: Optional[str]
     "Cleartext name"
+    metrics: Optional[
+        Tuple[
+            Optional[ExportStageFragmentPositionsOmerosRepresentationDerivedMetrics],
+            ...,
+        ]
+    ]
+    "Associated metrics of this Imasge"
 
     class Config:
         frozen = True
@@ -142,6 +183,10 @@ class ExportStageFragmentPositionsOmeros(Omero, BaseModel):
     """
 
     typename: Optional[Literal["Omero"]] = Field(alias="__typename", exclude=True)
+    timepoints: Optional[
+        Tuple[Optional[ExportStageFragmentPositionsOmerosTimepoints], ...]
+    ]
+    "Associated Timepoints"
     acquisition_date: Optional[datetime] = Field(alias="acquisitionDate")
     representation: ExportStageFragmentPositionsOmerosRepresentation
 
@@ -156,6 +201,12 @@ class ExportStageFragmentPositions(Position, BaseModel):
     name: str
     "The name of the possition"
     id: ID
+    x: float
+    "pixelSize for x in microns"
+    z: float
+    "pixelSize for z in microns"
+    y: float
+    "pixelSize for y in microns"
     omeros: Optional[Tuple[Optional[ExportStageFragmentPositionsOmeros], ...]]
     "Associated images through Omero"
 
@@ -180,7 +231,7 @@ class ExportDatasetFragmentOmerofiles(BaseModel):
     "The name of the file"
     type: OmeroFileType
     "The type of the file"
-    file: Optional[File]
+    file: str
     "The file"
 
     class Config:
@@ -206,7 +257,7 @@ class GetExportStageQuery(BaseModel):
         id: ID
 
     class Meta:
-        document = "fragment ExportStage on Stage {\n  name\n  positions {\n    name\n    id\n    omeros {\n      acquisitionDate\n      representation {\n        store\n        name\n        id\n        fileOrigins {\n          id\n          file\n        }\n        derived(flatten: 4) {\n          id\n          store\n          name\n        }\n      }\n    }\n  }\n}\n\nquery GetExportStage($id: ID!) {\n  stage(id: $id) {\n    ...ExportStage\n  }\n}"
+        document = "fragment ExportStage on Stage {\n  name\n  positions {\n    name\n    id\n    x\n    z\n    y\n    omeros {\n      timepoints {\n        era {\n          name\n        }\n        deltaT\n      }\n      acquisitionDate\n      representation {\n        store\n        name\n        id\n        fileOrigins {\n          id\n          file\n        }\n        derived(flatten: 4) {\n          id\n          store\n          name\n          metrics {\n            id\n            key\n            value\n          }\n        }\n      }\n    }\n  }\n}\n\nquery GetExportStage($id: ID!) {\n  stage(id: $id) {\n    ...ExportStage\n  }\n}"
 
 
 class GetExportDatasetQuery(BaseModel):

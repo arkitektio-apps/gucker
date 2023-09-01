@@ -23,6 +23,7 @@ from gucker.api.schema import get_export_stage, get_export_dataset
 from mikro import Stage, Image
 import tifffile
 from arkitekt.tqdm import tqdm
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -235,6 +236,15 @@ class Gucker(QtWidgets.QMainWindow):
             os.path.join(dir, f"ID({representation.id}) {representation.name}.tiff"),
             representation.data,
         )
+        with open(
+            os.path.join(
+                dir, f"ID({representation.id}) {representation.name} meta.json"
+            ),
+            "w",
+        ) as f:
+            f.write(
+                json.dumps(representation.dict(), indent=4, sort_keys=True, default=str)
+            )
 
     def export_stage(self, stage: Stage) -> None:
         """Export Stage
@@ -250,15 +260,23 @@ class Gucker(QtWidgets.QMainWindow):
 
         stage_dir = os.path.join(self.export_dir, f"ID({stage.id}) {export_stage.name}")
         os.makedirs(stage_dir, exist_ok=True)
-        for item in export_stage.positions:
+        for item in tqdm(export_stage.positions):
             pos_dir = os.path.join(stage_dir, f"ID({item.id}) {item.name}")
             os.makedirs(pos_dir, exist_ok=True)
+            with open(os.path.join(pos_dir, "position.json"), "w") as f:
+                f.write(
+                    json.dumps(item.dict(), indent=4, sort_keys=True, default=str),
+                )
             for image in item.omeros:
                 image_dir = os.path.join(
                     pos_dir,
                     f"ID({image.representation.id}) {image.representation.name} {image.acquisition_date}",
                 )
                 os.makedirs(image_dir, exist_ok=True)
+                with open(os.path.join(image_dir, "raw.json"), "w") as f:
+                    f.write(
+                        json.dumps(image.dict(), indent=4, sort_keys=True, default=str)
+                    )
                 self.export_representation(image.representation, image_dir)
 
                 for file in image.representation.derived:

@@ -3,7 +3,19 @@ fragment ExportStage on Stage {
   positions {
     name
     id
+    x
+    z
+    y
     omeros {
+      timepoints {
+        era {
+          name
+        }
+        deltaT
+      }
+      views {
+        
+      }
       acquisitionDate
       representation {
         store
@@ -17,6 +29,11 @@ fragment ExportStage on Stage {
           id
           store
           name
+          metrics {
+            id
+            key
+            value
+          }
         }
       }
     }
