@@ -205,7 +205,7 @@ typing-extensions = {version = ">=4.0.0", markers = "python_version < \"3.9\""}
 name = "anyio"
 version = "4.0.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
@@ -225,26 +225,39 @@ trio = ["trio (>=0.22)"]
 
 [[package]]
 name = "arkitekt"
-version = "0.4.54"
+version = "0.5.46"
 description = "client for the arkitekt platform"
 category = "main"
 optional = false
 python-versions = ">=3.8,<=3.12"
 files = [
-    {file = "arkitekt-0.4.54-py3-none-any.whl", hash = "sha256:b8fa43cb9c894297d1e156aac476459bc8cbd59240df11a803b501274af545f9"},
-    {file = "arkitekt-0.4.54.tar.gz", hash = "sha256:46add269c4fd87312ede426dbabd65642c39dcc69a9c7792acdfd2bbb2f7a123"},
+    {file = "arkitekt-0.5.46-py3-none-any.whl", hash = "sha256:b23a8c59d3b31850b08b1e0513d83063e7c9a6db4aa02bf02c0167b3cf9e3860"},
+    {file = "arkitekt-0.5.46.tar.gz", hash = "sha256:7be9e2bb509d7ea42240016ab4142837e1f944c19b71d0583de93f96d90e267a"},
 ]
 
 [package.dependencies]
-fakts = ">=0.3.15"
-fluss = ">=0.1.38"
-herre = ">=0.3.14"
-mikro = ">=0.3.40"
-rekuest = ">=0.1.28"
-unlok = ">=0.1.10"
+fakts = ">=0.3.43"
+fluss = {version = ">=0.1.61", optional = true, markers = "extra == \"fluss\" or extra == \"all\""}
+herre = ">=0.3.27"
+mikro = {version = ">=0.3.92", optional = true, markers = "extra == \"mikro\" or extra == \"all\""}
+reaktion = {version = ">=0.1.47", optional = true, markers = "python_version >= \"3.8\" and python_version < \"4.0\" and extra == \"reaktion\" or python_version >= \"3.8\" and python_version < \"4.0\" and extra == \"all\""}
+rekuest = {version = ">=0.2.22", optional = true, markers = "extra == \"cli\" or extra == \"rekuest\" or extra == \"all\""}
+rich-click = {version = ">=1.6.1,<2.0.0", optional = true, markers = "extra == \"cli\" or extra == \"all\""}
+semver = {version = ">=3.0.1,<4.0.0", optional = true, markers = "extra == \"cli\" or extra == \"all\""}
+turms = {version = ">=0.4.2", optional = true, markers = "python_version >= \"3.9\" and python_version < \"4.0\" and extra == \"cli\" or python_version >= \"3.9\" and python_version < \"4.0\" and extra == \"all\""}
+unlok = {version = ">=0.1.18", optional = true, markers = "extra == \"unlok\" or extra == \"all\""}
+watchfiles = {version = ">=0.18.1,<0.19.0", optional = true, markers = "extra == \"cli\" or extra == \"all\""}
 
 [package.extras]
-cli = ["rich-click (>=1.6.1,<2.0.0)", "turms (>=0.3.1a0)", "watchfiles (>=0.18.1,<0.19.0)"]
+all = ["fluss (>=0.1.61)", "mikro (>=0.3.92)", "reaktion (>=0.1.47)", "rekuest (>=0.2.22)", "rich-click (>=1.6.1,<2.0.0)", "semver (>=3.0.1,<4.0.0)", "turms (>=0.4.2)", "unlok (>=0.1.18)", "watchfiles (>=0.18.1,<0.19.0)"]
+cli = ["rekuest (>=0.2.22)", "rich-click (>=1.6.1,<2.0.0)", "semver (>=3.0.1,<4.0.0)", "turms (>=0.4.2)", "watchfiles (>=0.18.1,<0.19.0)"]
+fluss = ["fluss (>=0.1.61)"]
+mikro = ["mikro (>=0.3.92)"]
+mikro-next = ["mikro-next (>=0.1.2)"]
+next = ["mikro-next (>=0.1.2)"]
+reaktion = ["reaktion (>=0.1.47)"]
+rekuest = ["rekuest (>=0.2.22)"]
+unlok = ["unlok (>=0.1.18)"]
 
 [[package]]
 name = "asciitree"
@@ -495,7 +508,7 @@ files = [
 name = "commonmark"
 version = "0.9.1"
 description = "Python parser for the CommonMark Markdown spec"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 files = [
@@ -632,7 +645,7 @@ files = [
 name = "exceptiongroup"
 version = "1.1.3"
 description = "Backport of PEP 654 (exception groups)"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1468,7 +1481,7 @@ email = ["email-validator (>=1.0.3)"]
 name = "pygments"
 version = "2.16.1"
 description = "Pygments is a syntax highlighting package written in Python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1766,6 +1779,22 @@ signing = ["cryptography (>=41.0.3,<42.0.0)"]
 websockets = ["websockets (>=10.2,<11.0)"]
 
 [[package]]
+name = "reaktion"
+version = "0.1.47"
+description = ""
+category = "main"
+optional = false
+python-versions = ">=3.8,<=3.12"
+files = [
+    {file = "reaktion-0.1.47-py3-none-any.whl", hash = "sha256:0787450c840f8e1071d26702b3dfea1505ef94e8dec08d84950ff522b1e1e21c"},
+    {file = "reaktion-0.1.47.tar.gz", hash = "sha256:b2e141221171a6ebe17bbd6d92dc6694817b14af01b3f09115900ec57a6f1c99"},
+]
+
+[package.dependencies]
+fluss = ">=0.1.59"
+rekuest = ">=0.2.9"
+
+[[package]]
 name = "rekuest"
 version = "0.2.22"
 description = "rpc and node backbone"
@@ -1790,7 +1819,7 @@ websockets = ">=10.0,<11.0"
 name = "rich"
 version = "11.2.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.2,<4.0.0"
 files = [
@@ -1810,7 +1839,7 @@ jupyter = ["ipywidgets (>=7.5.1,<8.0.0)"]
 name = "rich-click"
 version = "1.6.1"
 description = "Format click help output nicely with rich"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1874,6 +1903,18 @@ awscli = ["aiobotocore[awscli] (>=2.5.4,<2.6.0)"]
 boto3 = ["aiobotocore[boto3] (>=2.5.4,<2.6.0)"]
 
 [[package]]
+name = "semver"
+version = "3.0.1"
+description = "Python helper for Semantic Versioning (https://semver.org)"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "semver-3.0.1-py3-none-any.whl", hash = "sha256:2a23844ba1647362c7490fe3995a86e097bb590d16f0f32dfc383008f19e4cdf"},
+    {file = "semver-3.0.1.tar.gz", hash = "sha256:9ec78c5447883c67b97f98c3b6212796708191d22e4ad30f4570f840171cbce1"},
+]
+
+[[package]]
 name = "setuptools"
 version = "68.2.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -1906,7 +1947,7 @@ files = [
 name = "sniffio"
 version = "1.3.0"
 description = "Sniff out which async library your code is running under"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1981,7 +2022,7 @@ telegram = ["requests"]
 name = "turms"
 version = "0.4.3"
 description = "graphql-codegen powered by pydantic"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
@@ -2062,7 +2103,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 name = "watchfiles"
 version = "0.18.1"
 description = "Simple, modern and high performance file watching and code reload in python."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2407,4 +2448,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "89ea4fb2f273c0d791a12003784bb52f793afc8aaefe1f659a538468821a2f59"
+content-hash = "d284d1aceab677a476aa70df6579c8a98f863007128311fbafc58dfcd89d6914"
