@@ -8,7 +8,7 @@ packages = [{ include = "gucker" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-arkitekt = "^0.4.109"
+arkitekt = {version = "0.4.54", extras = ["all"]}
 tifffile = "^2023.4.12"
 tqdm = "^4.65.0"
 

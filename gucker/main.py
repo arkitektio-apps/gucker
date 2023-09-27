@@ -11,6 +11,8 @@ from mikro.api.schema import (
     OmeroFileFragment,
     upload_bigfile,
     create_dataset,
+    RepresentationFragment,
+    StageFragment,
     DatasetFragment,
 )
 from qtpy import QtWidgets, QtGui
@@ -20,7 +22,7 @@ from arkitekt.builders import publicqt
 from arkitekt import log
 import logging
 from gucker.api.schema import get_export_stage, get_export_dataset
-from mikro import Stage, Image
+
 import tifffile
 from arkitekt.tqdm import tqdm
 import json
@@ -43,7 +45,7 @@ class Gucker(QtWidgets.QMainWindow):
     has_uploaded = QtCore.Signal(str)
 
     def __init__(self, **kwargs) -> None:
-        super().__init__()
+        super().__init__(**kwargs)
         # self.setWindowIcon(QtGui.QIcon(os.path.join(os.getcwd(), 'share\\assets\\icon.png')))
         self.setWindowIcon(QtGui.QIcon(get_asset_file("logo.ico")))
 
@@ -65,8 +67,14 @@ class Gucker(QtWidgets.QMainWindow):
         self.center_label.setPixmap(self.idle_bitmap)
         self.center_label.setScaledContents(True)
 
-        self.app = publicqt("github.io.jhnnsrs.gucker", "latest", parent=self)
-        self.app.enter()
+        print(self)
+
+        self.app = publicqt(
+            identifier="github.io.jhnnsrs.gucker",
+            version="latest",
+            parent=self,
+            settings=self.settings,
+        )
         self.magic_bar = MagicBar(self.app, dark_mode=True)
         self.magic_bar.app_state_changed.connect(
             lambda: self.button.setDisabled(
@@ -231,7 +239,9 @@ class Gucker(QtWidgets.QMainWindow):
 
         self.is_watching.emit(False)
 
-    def export_representation(self, representation: Image, dir: str) -> None:
+    def export_representation(
+        self, representation: RepresentationFragment, dir: str
+    ) -> None:
         tifffile.imsave(
             os.path.join(dir, f"ID({representation.id}) {representation.name}.tiff"),
             representation.data,
@@ -246,7 +256,7 @@ class Gucker(QtWidgets.QMainWindow):
                 json.dumps(representation.dict(), indent=4, sort_keys=True, default=str)
             )
 
-    def export_stage(self, stage: Stage) -> None:
+    def export_stage(self, stage: StageFragment) -> None:
         """Export Stage
 
         Exports the stage to the export directory
