@@ -13,9 +13,6 @@ fragment ExportStage on Stage {
         }
         deltaT
       }
-      views {
-        
-      }
       acquisitionDate
       representation {
         store

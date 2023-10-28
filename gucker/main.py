@@ -11,9 +11,11 @@ from mikro.api.schema import (
     OmeroFileFragment,
     upload_bigfile,
     create_dataset,
+    ROIFragment,
     RepresentationFragment,
     StageFragment,
     DatasetFragment,
+    TableFragment,
 )
 from qtpy import QtWidgets, QtGui
 from qtpy import QtCore
@@ -21,11 +23,16 @@ from arkitekt.qt.magic_bar import MagicBar, ProcessState
 from arkitekt.builders import publicqt
 from arkitekt import log
 import logging
-from gucker.api.schema import get_export_stage, get_export_dataset
+from gucker.api.schema import (
+    get_export_stage,
+    get_export_dataset,
+    get_export_representation,
+)
 
 import tifffile
 from arkitekt.tqdm import tqdm
 import json
+from slugify import slugify
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +108,7 @@ class Gucker(QtWidgets.QMainWindow):
         # self.app.rekuest.register(on_provide=self.on_stream_provide)(self.stream_folder)
         self.app.rekuest.register()(self.stream_files)
         self.app.rekuest.register()(self.export_stage)
+        self.app.rekuest.register()(self.export_image)
         self.app.rekuest.register()(self.export_dataset)
         self.setWindowTitle("Gucker")
 
@@ -268,7 +276,10 @@ class Gucker(QtWidgets.QMainWindow):
         export_stage = get_export_stage(stage)
         print(export_stage)
 
-        stage_dir = os.path.join(self.export_dir, f"ID({stage.id}) {export_stage.name}")
+        stage_dir = os.path.join(
+            self.export_dir, slugify(f"ID({stage.id}) {export_stage.name}")
+        )
+
         os.makedirs(stage_dir, exist_ok=True)
         for item in tqdm(export_stage.positions):
             pos_dir = os.path.join(stage_dir, f"ID({item.id}) {item.name}")
@@ -291,6 +302,100 @@ class Gucker(QtWidgets.QMainWindow):
 
                 for file in image.representation.derived:
                     self.export_representation(file, image_dir)
+
+    def export_derived_table(self, table: TableFragment, dir: str) -> None:
+        table.data.to_csv(os.path.join(dir, f"table.csv"))
+        with open(
+            os.path.join(dir, f"meta.json"),
+            "w",
+        ) as f:
+            f.write(json.dumps(table.dict(), indent=4, sort_keys=True, default=str))
+
+    def export_derived_roi(self, roi: ROIFragment, dir: str) -> None:
+        vector = roi.get_vector_pandas()
+        vector.to_csv(os.path.join(dir, f"vector.csv"))
+        with open(
+            os.path.join(dir, f"meta.json"),
+            "w",
+        ) as f:
+            f.write(json.dumps(roi.dict(), indent=4, sort_keys=True, default=str))
+
+        if hasattr(roi, "derived_representations"):
+            derived_dir = os.path.join(dir, "derived_representations")
+            os.makedirs(os.path.join(dir, derived_dir), exist_ok=True)
+            for derived_rep in roi.derived_representations:
+                image_dir = os.path.join(
+                    derived_dir,
+                    slugify(f"ID({derived_rep.id}) {derived_rep.name}"),
+                )
+                os.makedirs(image_dir, exist_ok=True)
+                self.export_derived_representation(derived_rep, image_dir)
+
+    def export_derived_representation(
+        self, representation: RepresentationFragment, dir: str
+    ) -> None:
+        tifffile.imsave(
+            os.path.join(dir, f"image.tiff"),
+            representation.data,
+        )
+        with open(
+            os.path.join(dir, f"meta.json"),
+            "w",
+        ) as f:
+            f.write(
+                json.dumps(representation.dict(), indent=4, sort_keys=True, default=str)
+            )
+
+        if hasattr(representation, "derived"):
+            derived_dir = os.path.join(dir, "derived")
+            os.makedirs(os.path.join(dir, derived_dir), exist_ok=True)
+            for derived_rep in representation.derived:
+                image_dir = os.path.join(
+                    derived_dir,
+                    slugify(f"ID({derived_rep.id}) {derived_rep.name}"),
+                )
+                os.makedirs(image_dir, exist_ok=True)
+                self.export_derived_representation(derived_rep, image_dir)
+
+        if hasattr(representation, "tables"):
+            derived_dir = os.path.join(dir, "tables")
+            os.makedirs(os.path.join(dir, derived_dir), exist_ok=True)
+            for derived_table in representation.tables:
+                image_dir = os.path.join(
+                    derived_dir,
+                    slugify(f"ID({derived_table.id}) {derived_table.name}"),
+                )
+                os.makedirs(image_dir, exist_ok=True)
+                self.export_derived_table(derived_table, image_dir)
+
+        if hasattr(representation, "rois"):
+            derived_dir = os.path.join(dir, "rois")
+            os.makedirs(os.path.join(dir, derived_dir), exist_ok=True)
+            for derived_roi in representation.rois:
+                image_dir = os.path.join(
+                    derived_dir,
+                    slugify(f"ID({derived_roi.id})"),
+                )
+                os.makedirs(image_dir, exist_ok=True)
+                self.export_derived_roi(derived_roi, image_dir)
+
+    def export_image(self, representaion: RepresentationFragment) -> None:
+        """Export Image
+
+        Exports the Image and correspondings rois and their transformations to the export directory
+
+        Args:
+            stage (Stage): The stage to export
+        """
+        assert self.export_dir, "No export directory selected"
+        export_rep = get_export_representation(representaion)
+        print(export_rep)
+
+        stage_dir = os.path.join(
+            self.export_dir, slugify(f"ID({export_rep.id}) {export_rep.name}")
+        )
+        os.makedirs(stage_dir, exist_ok=True)
+        self.export_derived_representation(export_rep, stage_dir)
 
     def export_dataset(self, dataset: DatasetFragment) -> None:
         """Export Files in Dataset

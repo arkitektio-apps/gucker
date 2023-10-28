@@ -1,0 +1,71 @@
+
+fragment ExportRepresentation on Representation {
+  fileOrigins {
+    name
+    createdAt
+  }
+  id
+  name
+  omero {
+    id
+    physicalSize {
+      x
+      y
+      z
+      t
+      c
+    }
+    timepoints {
+      id
+    }
+    
+  }
+  rois {
+    id
+    comments {
+      id
+    }
+    creator {
+      sub
+    }
+    vectors {
+      x
+      y
+      z
+      t
+      c
+    }
+    type
+    derivedRepresentations {
+      id
+      name
+      store
+      metrics {
+          key
+          value
+      }
+      derived(flatten: 3){
+        id
+        name
+        store
+        metrics {
+          key
+          value
+        }
+        tables {
+          id
+          name
+          store
+        }
+      }
+    }
+  }
+  store
+  
+}
+
+query GetExportRepresentation($id: ID!) {
+  representation(id: $id) {
+    ...ExportRepresentation
+  }
+}
