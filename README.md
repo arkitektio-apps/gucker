@@ -9,22 +9,32 @@
 
 gucker stream your files to the mikro/arkitekt platform
 
-# DEVELOPMENT
 
 ## Idea
 
-This is a plugin/app for the mikro/arkitekt environment and enables to stream a folder to arkitekt platform
-and infer metadata from your filename. start the program and point it to your folder environment.
+This is a simple desktop app that helps yuo to stream files from and to the arkitekt platform. Simply install
+this app and point it to the directory you want to stream. Once connected to arkitekt, you can now
+stream these files through your analysis pipeline.
+
 
 ## Install Packages
 
-You can use one of the packaed versions that are one click installer
+Please install the software via the prebuilt binaries. You can find the latest release [here](
+    https://github.com/arkitektio-apps/gucker/releases/latest
+)
 
 ## Install
 
-Install this applciation via 
+If you prefer to install the software via pip, you can do so by running the following command:
 
 ```bash
 pip install gucker
 ```
 
+## Usage
+
+To use the software, simply run the following command:
+
+```bash
+gucker
+```
