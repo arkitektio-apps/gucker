@@ -1,6 +1,6 @@
 # gucker
 
-[![codecov](https://codecov.io/gh/jhnnsrs/gucker/branch/master/graph/badge.svg?token=UGXEA2THBV)](https://codecov.io/gh/jhnnsrs/gucker)
+[![codecov](https://codecov.io/gh/arkitektio-apps/gucker/branch/master/graph/badge.svg?token=UGXEA2THBV)](https://codecov.io/gh/jhnnsrs/gucker)
 [![PyPI version](https://badge.fury.io/py/gucker.svg)](https://pypi.org/project/gucker/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://pypi.org/project/gucker/)
 ![Maintainer](https://img.shields.io/badge/maintainer-jhnnsrs-blue)
@@ -33,7 +33,8 @@ pip install gucker
 
 ## Usage
 
-To use the software, simply run the following command:
+To use the software, simply start the downloaded binary or run the following command,
+if working with the pip package (and running in the same environment as the package is installed in)
 
 ```bash
 gucker

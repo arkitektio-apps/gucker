@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gucker"
-version = "0.1.0"
+version = "0.1.1"
 description = "a simple watcher for file events, streaming to arkitekt"
 authors = ["jhnnsrs <jhnnsrs@gmail.com>"]
 license = "CC BY-NC 3.0"
